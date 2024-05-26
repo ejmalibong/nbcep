@@ -11,57 +11,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	$password = testInput($_POST["txtPassword"]);
 	$isActive = 1;
 
-	// uncomment and save this code to hash password of all employees
+	// part of first time setup, disable (comment) the session_status at the top
+	// uncomment this code and reload the browser to hash password of all employees
 	// try {
-	// 	$query = "SELECT EmployeeId, Password FROM dbo.Employee";
-	// 	$result = sqlsrv_query($conn, $query);
+	// 	$selQry = "SELECT EmployeeId, Password FROM dbo.Employee";
+	// 	$res = execQuery(1, 1, $selQry);
 
-	// 	if ($result === false) {
-	// 		echo(FormatErrors(sqlsrv_errors(), true));
-	// 	}
-
-	// 	// check if there rows in result set
-	// 	if ($result){
-	// 		$rows = sqlsrv_has_rows($result);
-	// 		if ($rows === true)
-	// 			echo "there are rows. <br />";
-	// 		else
-	// 			echo "there are no rows. <br />";
-	// 	}
-
-	// 	$row_count = sqlsrv_num_rows($result);
-
-	// 	if ($row_count === false) {
-	// 		while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
+	// 	if ($res !== false) {
+	// 		foreach ($res as $row) {
 	// 			$id = $row['EmployeeId'];
 	// 			$password = $row['Password'];
 	// 			$hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-	// 			$upd_query = "UPDATE Employee SET PasswordHash=? WHERE EmployeeId=?";
-	// 			$stmt = sqlsrv_prepare($conn, $upd_query, array($hashed_password, $id));
+	// 			$delQry = "UPDATE Employee SET PasswordHash=? WHERE EmployeeId=?";
+	// 			$params = [$hashed_password, $id];
+	// 			$resDelQry = execQuery(1, 1, $delQry, $params);
 
-	// 			if (!$stmt) {
-	// 				die(FormatErrors(sqlsrv_errors(), true));
-	// 			}
-
-	// 			sqlsrv_execute($stmt);
-
-	// 			if (sqlsrv_rows_affected($stmt) > 0) {
+	// 			if ($resDelQry === false) {
 	// 				echo "Password updated successfully for user ID: $id<br>";
 	// 			} else {
 	// 				echo "Error updating password for user ID: $id<br>";
 	// 			}
 	// 		}
-	// 		exit();
 	// 	} else {
 	// 		echo "No users found.";
 	// 	}
-
-	// 		sqlsrv_free_stmt($result);
-	// 		sqlsrv_close($conn);
-	// 	} catch (Exception $e) {
-	// 		die(FormatErrors(sqlsrv_errors()));
-	// 	}
+	// } catch (Exception $e) {
+	// 	die(FormatErrors(sqlsrv_errors()));
+	// }
 
 	try {
 		$proc = "EXEC RdEmployee @EmployeeCode=?, @IsActive=?";
@@ -80,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 					$_SESSION['departmentId'] = $row['DepartmentId'];
 					$_SESSION['teamId'] = $row['TeamId'];
 					$_SESSION['positionId'] = $row['PositionId'];
-					header('Location: home.php');
+					header('Location: dtrviewer.php');
 					exit;
 				} else {
 					$loginError = "Incorrect employee ID or password.";

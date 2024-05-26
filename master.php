@@ -13,7 +13,7 @@
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="home.php">
+            <a class="navbar-brand" href="dtrviewer.php">
                 <img src="img/nbc.jpg" alt="nbc-logo" width="70" height="35">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,13 +21,13 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="home.php">Home</a>
-                    </li>
+                    </li> -->
                     <li class="nav-item">
                         <a class="nav-link active" href="dtrviewer.php">DTR Viewer</a>
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link disabled" href="#" aria-disabled="true">Load Balance Checker</a>
                     </li>
                     <li class="nav-item">
@@ -49,7 +49,7 @@
                             </li>
                             <li><a class="dropdown-item" href="#">About Employee Portal</a></li>
                         </ul>
-                    </li>
+                    </li> -->
                 </ul>
 
                 <ul class="navbar-nav">
@@ -58,12 +58,12 @@
                             <?= htmlspecialchars($_SESSION['employeeName']); ?>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-lg-end">
-                            <li><a class="dropdown-item" href="#">View Information</a></li>
+                            <!-- <li><a class="dropdown-item" href="#">View Information</a></li>
                             <li><a class="dropdown-item" href="#">Change Password</a></li>
                             <li><a class="dropdown-item" href="#">Change Email</a></li>
                             <li>
                                 <hr class="dropdown-divider">
-                            </li>
+                            </li> -->
                             <li><a class="dropdown-item" href="logout.php">Log Out</a></li>
                         </ul>
                     </li>
