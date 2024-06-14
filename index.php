@@ -23,7 +23,7 @@ require_once 'authenticate.php';
                         <h4 class="text-center">NBC Employee Portal</h4>
                     </div>
                     <div class="card-body">
-                        <form action="" method="POST">
+                        <form id="myForm" action="" method="POST">
                             <div class="mb-3">
                                 <label for="employeeCode" class="form-label">Employee ID</label>
                                 <input type="text" class="form-control" id="employeeCode" name="txtEmployeeCode" required>
@@ -36,7 +36,7 @@ require_once 'authenticate.php';
                                 <button type="submit" class="btn btn-primary" name="btnlogin">Login</button>
                             </div>
                             <?php if ($loginError) : ?>
-                                <div class="alert alert-danger mt-3" role="alert">
+                                <div class="alert alert-danger mt-3 text-center" role="alert">
                                     <?php echo $loginError; ?>
                                 </div>
                             <?php endif; ?>

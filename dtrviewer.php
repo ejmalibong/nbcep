@@ -3,8 +3,9 @@
 $title = "DTR Viewer";
 ob_start(); // start output buffering
 
-require "config/dbcon.php";
-require "header.php";
+require_once "config/dbop.php";
+require_once "config/dbsql.php";
+require_once "header.php";
 
 $msgPrompt = '';
 
@@ -123,9 +124,11 @@ function generateDtr()
     $startDate = testInput($_POST["dtpStartDate"]);
     $endDate = testInput($_POST["dtpEndDate"]);
 
+    $dbsql1 = new DbSql(2);
+
     $selQry = "SELECT Date, TimeIn, TimeOut, Hours FROM dbo.tblDailyTimeRecord WHERE EmployeeId=? AND CAST(DATE AS DATE) BETWEEN ? AND ?";
-    $params = array($_SESSION['employeeId'], $startDate, $endDate);
-    $res = execQuery(2, 1, $selQry, $params);
+    $prm = array($_SESSION['employeeId'], $startDate, $endDate);
+    $res = $dbsql1->rdQuery(2, $selQry, $prm);
 
     echo "<div class='container'>";
     echo "<div class='row-fluid'>";
@@ -173,9 +176,11 @@ function exportToExcel()
     $startDate = testInput($_POST["dtpStartDate"]);
     $endDate = testInput($_POST["dtpEndDate"]);
 
+    $dbsql1 = new DbSql(2);
+
     $selQry = "SELECT Date, TimeIn, TimeOut, Hours FROM dbo.tblDailyTimeRecord WHERE EmployeeId=? AND CAST(DATE AS DATE) BETWEEN ? AND ?";
-    $params = array($_SESSION['employeeId'], $startDate, $endDate);
-    $res = execQuery(2, 1, $selQry, $params);
+    $prm = array($_SESSION['employeeId'], $startDate, $endDate);
+    $res = $dbsql1->rdQuery(2, $selQry, $prm);
 
     if ($res !== false) {
         // tell the browser it's going to be a csv file
@@ -216,9 +221,11 @@ function exportToPdf()
     $startDate = testInput($_POST["dtpStartDate"]);
     $endDate = testInput($_POST["dtpEndDate"]);
 
+    $dbsql1 = new DbSql(2);
+
     $selQry = "SELECT Date, TimeIn, TimeOut, Hours FROM dbo.tblDailyTimeRecord WHERE EmployeeId=? AND CAST(DATE AS DATE) BETWEEN ? AND ?";
-    $params = array($_SESSION['employeeId'], $startDate, $endDate);
-    $res = execQuery(2, 1, $selQry, $params);
+    $prm = array($_SESSION['employeeId'], $startDate, $endDate);
+    $res = $dbsql1->rdQuery(2, $selQry, $prm);
 
     $strtDt = date_create($startDate);
     $endDt = date_create($endDate);
@@ -295,15 +302,13 @@ function exportToPdf()
         ob_end_clean();
 
         // auto open pdf
-        // $pdf->Output();
+        $pdf->Output();
 
         // use this to download the pdf instead
-        $pdf->Output('D', $filename);
+        // $pdf->Output('D', $filename);
     }
 }
-
 ?>
-
 
 <?php
 $content = ob_get_clean(); // capture the buffer into a variable and clean the buffer

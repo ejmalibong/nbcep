@@ -21,22 +21,20 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <!-- <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="home.php">Home</a>
-                    </li> -->
                     <li class="nav-item">
                         <a class="nav-link active" href="dtrviewer.php">DTR Viewer</a>
                     </li>
-                    <!-- <li class="nav-item">
-                        <a class="nav-link disabled" href="#" aria-disabled="true">Load Balance Checker</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link disabled" href="#" aria-disabled="true">Gate Pass Application</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link disabled" href="#" aria-disabled="true">Leave Application</a>
-                    </li>
-                    <li class="nav-item dropdown">
+
+                    <?php
+
+                    if ($_SESSION['isHrRecords'] === 1) {
+                        echo  '<li class="nav-item">
+                        <a class="nav-link active" href="dtruploading.php">DTR Uploading</a>
+                        </li>';
+                    }
+
+                    ?>
+                    <!-- <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Help
                         </a>
