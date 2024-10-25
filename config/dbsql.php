@@ -1,6 +1,6 @@
 <?php
 
-require_once 'config/method.php';
+require_once 'method.php';
 
 class DbSql
 {

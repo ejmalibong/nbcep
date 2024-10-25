@@ -22,7 +22,7 @@ function testInput($data)
     return $data;
 }
 
-function alert($message)
+function alertMsg($message)
 {
     echo "<script>alert('$message');</script>";
 }

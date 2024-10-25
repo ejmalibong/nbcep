@@ -1,6 +1,6 @@
 <?php
 
-require_once 'config/method.php';
+// require_once '/config/method.php';
 
 class DbOp
 {
@@ -12,20 +12,20 @@ class DbOp
         $serverName = "localhost";
         $username = "sa";
         $password = "Nbc12#";
-        $dbNameMain = "emp_portal";
-        $dbNameSecondary = "nbctechdb";
+        $db1 = "eportal";
+        $db2 = "nbctechdb";
 
         // create connection
         if ($dbConnection === 1) {
-            $this->conn = new mysqli($serverName, $username, $password, $dbNameMain);
+            $this->conn = new mysqli($serverName, $username, $password, $db1);
         } else if ($dbConnection === 2) {
-            $this->conn = new mysqli($serverName, $username, $password, $dbNameSecondary);
+            $this->conn = new mysqli($serverName, $username, $password, $db2);
         }
 
         // Check connection
-        if ($this->conn->connect_error) {
-            die(formatErrors("Connection failed: " . $this->conn->connect_error));
-        }
+        // if ($this->conn->connect_error) {
+        //     die(formatErrors("Connection failed: " . $this->conn->connect_error));
+        // }
     }
 
     public function select($query, $types = "", $params = [])
