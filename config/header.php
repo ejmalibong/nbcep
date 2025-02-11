@@ -1,5 +1,7 @@
 <?php
+ini_set('session.gc_maxlifetime', 86400);
 session_status() === PHP_SESSION_ACTIVE ?: session_start();
+require_once "../config/method.php";
 ?>
 
 <!DOCTYPE html>

@@ -4,31 +4,40 @@ $title = "DTR Viewer";
 ob_start(); // start output buffering
 
 require_once "../config/dbop.php";
-require_once "../config/dbsql.php";
 require_once "../config/header.php";
 
 $errorPrompt = '';
 $successPrompt = '';
 
-$firstDay = date('Y-09-01');
+$firstDay = date('Y-m-01');
 $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')));
 
 ?>
 
 <style>
-    table {
-        table-layout: fixed;
-        word-wrap: break-word;
+    #cmbSuggestions {
+        position: absolute;
+        z-index: 1000;
+        width: 100%;
+        display: none;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        background-color: #fff;
+        max-height: 200px;
+        overflow-y: auto;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
 
-    th {
-        font-weight: normal;
-        vertical-align: middle;
+    .list-group-item {
+        cursor: pointer;
     }
 
-    td {
-        min-width: 50px;
-        vertical-align: middle;
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    #txtMember {
+        min-width: 100px;
     }
 
     @media only screen and (max-width: 760px),
@@ -44,6 +53,11 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
             display: block;
         }
 
+        table {
+            table-layout: fixed;
+            word-wrap: break-word;
+        }
+
         /* Hide table headers (but not display: none;, for accessibility) */
         thead tr {
             position: absolute;
@@ -55,12 +69,19 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
             border: 1px solid #ccc;
         }
 
+        th {
+            font-weight: normal;
+            vertical-align: middle;
+        }
+
         td {
             /* Behave  like a "row" */
             border: none;
             border-bottom: 1px solid #eee;
             position: relative;
             padding-left: 50%;
+            min-width: 50px;
+            vertical-align: middle;
         }
 
         td:before {
@@ -74,21 +95,8 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
             white-space: nowrap;
         }
 
-        /*Label the data*/
         td:nth-of-type(1):before {
             content: "#";
-        }
-
-        td:nth-of-type(2):before {
-            content: "Employee Name";
-        }
-
-        td:nth-of-type(3):before {
-            content: "Department";
-        }
-
-        td:nth-of-type(4):before {
-            content: "Team";
         }
 
         td:nth-of-type(5):before {
@@ -161,40 +169,24 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
     }
 </style>
 
+<head>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+</head>
+
 <form id="myForm" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
     <div class="container-fluid">
-        <div class="bg-body p-5 rounded">
+        <div class="bg-body p-3 rounded">
             <?php
-            if ($_SESSION['isApprover'] == 1) { ?>
+            if ($_SESSION['isHrRecords'] === 0 || $_SESSION['isAdmin'] === 0) {
+            ?>
                 <div class="row row-cols-lg-auto g-3 align-items-center mb-2">
                     <div class="col-12">
                         <input class="form-check-input" type="radio" id="rdMyDtr" name="dtrOption" value="option1" <?php if (isset($_POST["dtrOption"]) && $_POST['dtrOption'] == "option1") {
                                                                                                                         echo "checked";
-                                                                                                                    } ?> checked>
+                                                                                                                    } ?> onclick="toggleDtrOption()" checked>
                         <label class="form-check-label" for="rdMyDtr">
                             My DTR
                         </label>
-                    </div>
-                    <div class="col-12">
-                        <input class="form-check-input" type="radio" id="rdDeptMembers" name="dtrOption" value="option2" <?php if (isset($_POST["dtrOption"]) && $_POST['dtrOption'] == "option2") {
-                                                                                                                                echo "checked";
-                                                                                                                            } ?>>
-                        <label class="form-check-label" for="rdDeptMembers">
-                            All Department Members
-                        </label>
-                    </div>
-                    <div class="col-12">
-                        <div class="input-group mb-1">
-                            <div class="input-group-text">
-                                <input class="form-check-input" type="radio" id="rdSearchMember" name="dtrOption" value="option3" <?php if (isset($_POST["dtrOption"]) && $_POST['dtrOption'] == "option3") {
-                                                                                                                                        echo "checked";
-                                                                                                                                    } ?>>
-                                <label class="d-block mx-2" for="rdSearchMember">
-                                    Search Member
-                                </label>
-                            </div>
-                            <input type="text" class="form-control form-control">
-                        </div>
                     </div>
                 </div>
                 <div class="row row-cols-lg-auto g-3 align-items-center mb-2">
@@ -212,8 +204,42 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
                     </div>
                 </div>
             <?php
-            }
+            } else {
             ?>
+                <div class="row row-cols-lg-auto g-3 align-items-center mb-2">
+                    <div class="col-12">
+                        <input class="form-check-input" type="radio" id="rdMyDtr" name="dtrOption" value="option1" <?php if (isset($_POST["dtrOption"]) && $_POST['dtrOption'] == "option1") {
+                                                                                                                        echo "checked";
+                                                                                                                    } ?> onclick="toggleDtrOption()" checked>
+                        <label class="form-check-label" for="rdMyDtr">
+                            My DTR
+                        </label>
+                    </div>
+                    <div class="col-12">
+                        <input class="form-check-input" type="radio" id="rdDeptMembers" name="dtrOption" value="option2" <?php if (isset($_POST["dtrOption"]) && $_POST['dtrOption'] == "option2") {
+                                                                                                                                echo "checked";
+                                                                                                                            } ?> onclick="toggleDtrOption()">
+                        <label class="form-check-label" for="rdDeptMembers">
+                            All Department Members
+                        </label>
+                    </div>
+                </div>
+                <div class="row row-cols-lg-auto g-3 align-items-center mb-2">
+                    <div class="col-12">
+                        <label for="dtpStartDate" class="col-form-label">Start Date</label>
+                    </div>
+                    <div class="col-12">
+                        <input type="date" id="dtpStartDate" name="dtpStartDate" class="form-control" value="<?php echo isset($_POST["dtpStartDate"]) ? $_POST["dtpStartDate"] : $firstDay; ?>">
+                    </div>
+                    <div class="col-12">
+                        <label for="dtpEndDate" class="col-form-label">End Date</label>
+                    </div>
+                    <div class="col-12">
+                        <input type="date" id="dtpEndDate" name="dtpEndDate" class="form-control" value="<?php echo isset($_POST["dtpEndDate"]) ? $_POST["dtpEndDate"] : $lastDay; ?>">
+                    </div>
+                </div>
+            <?php
+            } ?>
 
             <div class="row g-3 align-items-center input-group mb-2">
                 <div class="col-auto">
@@ -246,12 +272,8 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
         </div>
     </div>
 
-    <!-- <div class="row" style="overflow: auto;">
-         -->
-
     <?php
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
-
         $startDate = testInput($_POST["dtpStartDate"]);
         $endDate = testInput($_POST["dtpEndDate"]);
 
@@ -297,6 +319,18 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
                 .catch(error => console.error('Error:', error));
         });
     });
+
+    //enabling and disabling the search member field
+    function toggleDtrOption() {
+        const selectedValue = document.querySelector('input[name="dtrOption"]:checked').value
+        const inputField = document.getElementById("txtMember");
+
+        if (selectedValue === "option3") {
+            inputField.disabled = false;
+        } else {
+            inputField.disabled = true;
+        }
+    }
 </script>
 
 <?php
@@ -310,215 +344,23 @@ function generateDtr()
 
     switch ($_POST["dtrOption"]) {
         case "option1";
-            $selQry = "SELECT * FROM `dailytimerecord` WHERE employeeid=? AND CAST(date as DATE) between ? AND ?";
+            $selQry = "SELECT * FROM `dailytimerecord` WHERE employeeid=? AND CAST(date as DATE) between ? AND ? ORDER BY date ASC";
             $prmSel = array($_SESSION['employeeId'], $startDate, $endDate);
             $resSel = $db1->select($selQry, "sss", $prmSel);
-
-            if (!empty($resSel)) {
-                echo "<div class='row table-responsive' style='overflow-x: auto;'>";
-                echo "<div class='col'>";
-                echo "<div class='card'>";
-                echo "<div class='card-body' style='overflow-x: auto;'>";
-                echo "<table class='table table-striped table-mobile-responsive table-mobile-sided'>";
-                echo "<thead>";
-                echo "<tr>";
-
-                echo "<th scope='col' style='width: 50px;'>#</th>";
-                echo "<th scope='col' style='width: 250px;'>Employee Name</th>";
-                echo "<th scope='col' style='width: 200px;'>Department</th>";
-                echo "<th scope='col' style='width: 200px;'>Team</th>";
-                echo "<th scope='col' style='width: 100px;'>Date</th>";
-                echo "<th scope='col' style='width: 150px;'>Attendance</th>";
-                echo "<th scope='col' style='width: 200px;'>Schedule</th>";
-                echo "<th scope='col' style='width: 150px;'>Day</th>";
-                echo "<th scope='col' style='width: 100px;'>Time In</th>";
-                echo "<th scope='col' style='width: 100px;'>Time Out</th>";
-                echo "<th scope='col' style='width: 80px;'>Reg Hours</th>";
-                echo "<th scope='col' style='width: 80px;'>Tardy</th>";
-                echo "<th scope='col' style='width: 100px;'>Undertime</th>";
-                echo "<th scope='col' style='width: 80px;'>ND</th>";
-                echo "<th scope='col' style='width: 80px;'>OT</th>";
-                echo "<th scope='col' style='width: 80px;'>NDOT</th>";
-                echo "<th scope='col' style='width: 200px;'>Leave</th>";
-                echo "<th scope='col' style='width: 80px;'>Qty</th>";
-                echo "<th scope='col' style='width: 200px;'>Status</th>";
-                echo "<th scope='col' style='width: 80px;'>OB</th>";
-                echo "<th scope='col' style='width: 200px;'>Remarks</th>";
-                echo "</tr>";
-                echo "</thead>";
-                echo "<tbody>";
-
-                $rowCount = 1;
-
-                foreach ($resSel as $row) {
-                    echo "<tr>";
-
-                    echo "<td scope='row' data-content='#'>" . $rowCount . "</td>";
-                    echo "<td>" . $row['employeename'] . "</td>";
-                    echo "<td>" . $row['departmentname'] . "</td>";
-                    echo "<td>" . $row['teamname'] . "</td>";
-
-                    $formattedDate = date_format(date_create($row["date"]), 'm/d/Y');
-                    echo "<td>" . $formattedDate . "</td>";
-
-                    echo "<td>" . $row["attendancetype"] . "</td>";
-                    echo "<td>" . $row["dailyschedule"] . "</td>";
-                    echo "<td>" . $row["daytype"] . "</td>";
-
-                    if (number_format($row["regularhours"], 2) == '0.00') {
-                        echo "<td>" . '&nbsp' . "</td>";
-                        echo "<td>" . '&nbsp' . "</td>";
-                    } else {
-                        $strt = is_null($row["timein"]) ? "" : date('h:i A', strtotime($row["timein"]));
-                        echo "<td>" . $strt . "</td>";
-
-                        $end = is_null($row["timeout"]) ? " " : date('h:i A', strtotime($row["timeout"]));
-                        echo "<td>" . $end . "</td>";
-                    }
-
-                    echo "<td>" . number_format($row["regularhours"], 2) . "</td>";
-                    echo "<td>" . number_format($row["tardy"], 2) . "</td>";
-                    echo "<td>" . number_format($row["undertime"], 2) . "</td>";
-                    echo "<td>" . number_format($row["nd"], 2) . "</td>";
-                    echo "<td>" . number_format($row["ot"], 2) . "</td>";
-                    echo "<td>" . number_format($row["ndot"], 2) . "</td>";
-
-                    $leavetype = is_null($row["leavetype"]) ? '&nbsp' : $row["leavetype"];
-                    echo "<td>" . $leavetype . "</td>";
-
-                    echo "<td>" . number_format($row["leaveqty"], 2) . "</td>";
-
-                    $leavestatus = is_null($row["leavestatus"]) ? '&nbsp' : $row["leavestatus"];
-                    echo "<td>" . $leavestatus . "</td>";
-
-                    echo "<td>" . number_format($row["ob"], 2) . "</td>";
-
-                    $remarks = is_null($row["remarks"]) ? '&nbsp' : $row["remarks"];
-                    echo "<td>" . $remarks . "</td>";
-
-                    echo "</tr>";
-
-                    $rowCount++;
-                }
-
-                echo "</tbody>";
-                echo "</table>";
-                echo "</div>";
-                echo "</div>";
-                echo "</div>";
-                echo "</div>";
-            } else {
-                echo "<div class='alert alert-danger mt-3' role='alert'>";
-                echo "No records found.";
-                echo  "</div>";
-            }
-
             break;
 
         case "option2";
-            $selQry = "SELECT TRIM(departmentname) as departmentname FROM `department` WHERE departmentid = ? AND isactive = 1";
-            $prmSel = array($_SESSION['departmentId']);
-            $resSel = $db1->select($selQry, "s", $prmSel);
+            $selQry2 = "SELECT TRIM(departmentname) as departmentname FROM `department` WHERE departmentid = ? AND isactive = 1";
+            $prmSel2 = array($_SESSION['departmentId']);
+            $resSel2 = $db1->select($selQry2, "s", $prmSel2);
 
-            if (!empty($resSel)) {
-                foreach ($resSel as $row) {
-                    $selQry2 = "SELECT * FROM `dailytimerecord` WHERE TRIM(departmentname) = ? AND CAST(date as DATE) between ? AND ?";
-                    $prmSel2 = array($row['departmentname'], $startDate, $endDate);
-                    $resSel2 = $db1->select($selQry2, "sss", $prmSel2);
+            if (!empty($resSel2)) {
+                reset($resSel2);
 
-                    if (!empty($resSel2)) {
-                        echo "<div class='table-responsive'>";
-                        echo "<table class='table table-sm table-hover table-bordered text-center' style='vertical-align: middle'>";
-                        echo "<thead>";
-                        echo "<tr>";
-
-                        echo "<th>Employee Code</th>";
-                        echo "<th>EmployeeName</th>";
-                        echo "<th>Date</th>";
-                        echo "<th>Attendance</th>";
-                        echo "<th>Schedule</th>";
-                        echo "<th>Day</th>";
-                        echo "<th>Time In</th>";
-                        echo "<th>Time Out</th>";
-                        echo "<th>Reg Hours</th>";
-                        echo "<th>Tardy</th>";
-                        echo "<th>Undertime</th>";
-                        echo "<th>ND</th>";
-                        echo "<th>OT</th>";
-                        echo "<th>NDOT</th>";
-                        echo "<th>Leave</th>";
-                        echo "<th>Qty</th>";
-                        echo "<th>Status</th>";
-                        echo "<th>OB</th>";
-                        echo "<th>Remarks</th>";
-                        echo "</tr>";
-                        echo "</thead>";
-                        echo "<tbody>";
-
-                        foreach ($resSel2 as $row2) {
-                            echo "<tr>";
-
-                            $empCode = is_null($row2["employeecode"]) ? "" : $row2["employeecode"];
-                            echo "<td>" . $empCode . "</td>";
-
-                            $empName = is_null($row2["employeename"]) ? "" : $row2["employeename"];
-                            echo "<td>" . $empName . "</td>";
-
-                            $formattedDate = date_format(date_create($row2["date"]), 'm/d/Y');
-                            echo "<td>" . $formattedDate . "</td>";
-
-                            echo "<td>" . $row2["attendancetype"] . "</td>";
-                            echo "<td>" . $row2["dailyschedule"] . "</td>";
-                            echo "<td>" . $row2["daytype"] . "</td>";
-
-                            if (number_format($row2["regularhours"], 2) == '0.00') {
-                                $strt = is_null($row2["timein"]) ? "" : date('h:i A', strtotime($row2["timein"]));
-                                echo "<td>" . "</td>";
-
-                                $end = is_null($row2["timeout"]) ? "" : date('h:i A', strtotime($row2["timeout"]));
-                                echo "<td>" . "</td>";
-                            } else {
-                                $strt = is_null($row2["timein"]) ? "" : date('h:i A', strtotime($row2["timein"]));
-                                echo "<td>" . $strt . "</td>";
-
-                                $end = is_null($row2["timeout"]) ? "" : date('h:i A', strtotime($row2["timeout"]));
-                                echo "<td>" . $end . "</td>";
-                            }
-
-                            echo "<td>" . number_format($row2["regularhours"], 2) . "</td>";
-                            echo "<td>" . number_format($row2["tardy"], 2) . "</td>";
-                            echo "<td>" . number_format($row2["undertime"], 2) . "</td>";
-                            echo "<td>" . number_format($row2["nd"], 2) . "</td>";
-                            echo "<td>" . number_format($row2["ot"], 2) . "</td>";
-                            echo "<td>" . number_format($row2["ndot"], 2) . "</td>";
-
-                            $leavetype = is_null($row2["leavetype"]) ? "" : $row2["leavetype"];
-                            echo "<td>" . $leavetype . "</td>";
-
-                            echo "<td>" . number_format($row2["leaveqty"], 2) . "</td>";
-
-                            $leavestatus = is_null($row2["leavestatus"]) ? "" : $row2["leavestatus"];
-                            echo "<td>" . $leavestatus . "</td>";
-
-                            echo "<td>" . number_format($row2["ob"], 2) . "</td>";
-
-                            $remarks = is_null($row2["remarks"]) ? "" : $row2["remarks"];
-                            echo "<td>" . $remarks . "</td>";
-
-                            echo "</tr>";
-                        }
-
-                        echo "</tbody>";
-                        echo "</table>";
-                        echo "</div>";
-                    } else {
-                        echo "<div class='alert alert-danger mt-3' role='alert'>";
-                        echo "No records found.";
-                        echo  "</div>";
-                    }
-                }
+                $selQry = "SELECT * FROM `dailytimerecord` WHERE TRIM(departmentname) = ? AND CAST(date as DATE) between ? AND ? ORDER BY TRIM(employeename) ASC, date ASC";
+                $prmSel = array(current($resSel2[0]), $startDate, $endDate);
+                $resSel = $db1->select($selQry, "sss", $prmSel);
             }
-
             break;
 
         case "option3";
@@ -526,12 +368,118 @@ function generateDtr()
 
         default:
     }
+
+    if (!empty($resSel)) {
+        echo "<div class='row table-responsive' style='overflow-x: auto;'>";
+        echo "<div class='col'>";
+        echo "<div class='card'>";
+        echo "<div class='card-body' style='overflow-x: auto;'>";
+        echo "<table class='table table-sm table-striped table-hover table-mobile-responsive table-mobile-sided'>";
+        echo "<thead>";
+        echo "<tr>";
+
+        echo "<th scope='col' style='width: 50px;'>#</th>";
+
+        if ($_POST["dtrOption"] != "option1") {
+            echo "<th scope='col' style='width: 250px;'>Employee Name</th>";
+            echo "<th scope='col' style='width: 200px;'>Department</th>";
+            echo "<th scope='col' style='width: 200px;'>Team</th>";
+        }
+
+        echo "<th scope='col' style='width: 100px;'>Date</th>";
+        echo "<th scope='col' style='width: 150px;'>Attendance</th>";
+        echo "<th scope='col' style='width: 200px;'>Schedule</th>";
+        echo "<th scope='col' style='width: 150px;'>Day</th>";
+        echo "<th scope='col' style='width: 100px;'>Time In</th>";
+        echo "<th scope='col' style='width: 100px;'>Time Out</th>";
+        echo "<th scope='col' style='width: 80px;'>Reg Hours</th>";
+        echo "<th scope='col' style='width: 80px;'>Tardy</th>";
+        echo "<th scope='col' style='width: 100px;'>Undertime</th>";
+        echo "<th scope='col' style='width: 80px;'>ND</th>";
+        echo "<th scope='col' style='width: 80px;'>OT</th>";
+        echo "<th scope='col' style='width: 80px;'>NDOT</th>";
+        echo "<th scope='col' style='width: 200px;'>Leave</th>";
+        echo "<th scope='col' style='width: 80px;'>Qty</th>";
+        echo "<th scope='col' style='width: 200px;'>Status</th>";
+        echo "<th scope='col' style='width: 80px;'>OB</th>";
+        echo "<th scope='col' style='width: 200px;'>Remarks</th>";
+        echo "</tr>";
+        echo "</thead>";
+        echo "<tbody>";
+
+        $rowCount = 1;
+
+        foreach ($resSel as $row) {
+            echo "<tr>";
+
+            echo "<td scope='row' data-content='#'>" . $rowCount . "</td>";
+
+            if ($_POST["dtrOption"] != "option1") {
+                echo "<td>" . $row['employeename'] . "</td>";
+                echo "<td>" . $row['departmentname'] . "</td>";
+                echo "<td>" . $row['teamname'] . "</td>";
+            }
+
+            $formattedDate = date_format(date_create($row["date"]), 'm/d/Y');
+            echo "<td>" . $formattedDate . "</td>";
+
+            echo "<td>" . $row["attendancetype"] . "</td>";
+            echo "<td>" . $row["dailyschedule"] . "</td>";
+            echo "<td>" . $row["daytype"] . "</td>";
+
+            if (number_format($row["regularhours"], 2) == '0.00') {
+                echo "<td>" . '&nbsp' . "</td>";
+                echo "<td>" . '&nbsp' . "</td>";
+            } else {
+                $strt = is_null($row["timein"]) ? "" : date('h:i A', strtotime($row["timein"]));
+                echo "<td>" . $strt . "</td>";
+
+                $end = is_null($row["timeout"]) ? " " : date('h:i A', strtotime($row["timeout"]));
+                echo "<td>" . $end . "</td>";
+            }
+
+            echo "<td>" . number_format($row["regularhours"], 2) . "</td>";
+            echo "<td>" . number_format($row["tardy"], 2) . "</td>";
+            echo "<td>" . number_format($row["undertime"], 2) . "</td>";
+            echo "<td>" . number_format($row["nd"], 2) . "</td>";
+            echo "<td>" . number_format($row["ot"], 2) . "</td>";
+            echo "<td>" . number_format($row["ndot"], 2) . "</td>";
+
+            $leavetype = is_null($row["leavetype"]) ? '&nbsp' : $row["leavetype"];
+            echo "<td>" . $leavetype . "</td>";
+
+            echo "<td>" . number_format($row["leaveqty"], 2) . "</td>";
+
+            $leavestatus = is_null($row["leavestatus"]) ? '&nbsp' : $row["leavestatus"];
+            echo "<td>" . $leavestatus . "</td>";
+
+            echo "<td>" . number_format($row["ob"], 2) . "</td>";
+
+            $remarks = is_null($row["remarks"]) ? '&nbsp' : $row["remarks"];
+            echo "<td>" . $remarks . "</td>";
+
+            echo "</tr>";
+
+            $rowCount++;
+        }
+
+        echo "</tbody>";
+        echo "</table>";
+        echo "</div>";
+        echo "</div>";
+        echo "</div>";
+        echo "</div>";
+    } else {
+        echo "<div class='alert alert-danger mt-3' role='alert'>";
+        echo "No records found.";
+        echo  "</div>";
+    }
+
+    return;
 }
 
 function exportToExcel()
 {
-    $curDatetime = getdate(date("U"));
-    // $nameSuffix = $curDatetime['year'] . $curDatetime['mon'] . $curDatetime['mday'];
     $startDate = testInput($_POST["dtpStartDate"]);
     $endDate = testInput($_POST["dtpEndDate"]);
 
@@ -542,11 +490,34 @@ function exportToExcel()
 
     $db1 = new DbOp(1);
 
-    $selQry = "SELECT * FROM `dailytimerecord` WHERE employeeid=? AND CAST(date as DATE) between ? AND ?";
-    $prmSel = array($_SESSION['employeeId'], $startDate, $endDate);
-    $resSel = $db1->select($selQry, "sss", $prmSel);
+    switch ($_POST["dtrOption"]) {
+        case "option1";
+            $selQry = "SELECT * FROM `dailytimerecord` WHERE employeeid=? AND CAST(date as DATE) between ? AND ? ORDER BY date ASC";
+            $prmSel = array($_SESSION['employeeId'], $startDate, $endDate);
+            $resSel = $db1->select($selQry, "sss", $prmSel);
+            break;
 
-    if ($resSel !== false) {
+        case "option2";
+            $selQry2 = "SELECT TRIM(departmentname) as departmentname FROM `department` WHERE departmentid = ? AND isactive = 1";
+            $prmSel2 = array($_SESSION['departmentId']);
+            $resSel2 = $db1->select($selQry2, "s", $prmSel2);
+
+            if (!empty($resSel2)) {
+                reset($resSel2);
+
+                $selQry = "SELECT * FROM `dailytimerecord` WHERE TRIM(departmentname) = ? AND CAST(date as DATE) between ? AND ? ORDER BY TRIM(employeename) ASC, date ASC";
+                $prmSel = array(current($resSel2[0]), $startDate, $endDate);
+                $resSel = $db1->select($selQry, "sss", $prmSel);
+            }
+            break;
+
+        case "option3";
+            break;
+
+        default;
+    }
+
+    if (!empty($resSel)) {
         // tell the browser it's going to be a csv file
         header('Content-Type: text/csv');
         // tell the browser we want to save it instead of displaying it
@@ -557,11 +528,17 @@ function exportToExcel()
 
         $f = fopen('php://output', 'w');
 
-        $headers = array('Date', 'Attendance Type', 'Daily Schedule', 'Day Type', 'Time In', 'Time Out', 'Reg Hours', 'Tardy', 'Undertime', 'ND', 'OT', 'NDOT', 'Leave Type', 'Leave Status', 'Leave Qty', 'OB', 'Remarks');
+        if ($_POST["dtrOption"] != "option1") {
+            $headers = array('#', 'Date', 'Attendance', 'Schedule', 'Day', 'Time In', 'Time Out', 'Reg Hours', 'Tardy', 'Undertime', 'ND', 'OT', 'NDOT', 'Leave', 'Qty', 'Status', 'OB', 'Remarks');
+        } else {
+            $headers = array('#', 'Employee Name', 'Department', 'Team', 'Date', 'Attendance', 'Schedule', 'Day', 'Time In', 'Time Out', 'Reg Hours', 'Tardy', 'Undertime', 'ND', 'OT', 'NDOT', 'Leave', 'Qty', 'Status', 'OB', 'Remarks');
+        }
+
         fputcsv($f, $headers);
 
-        foreach ($resSel as $row) {
+        $rowCount = 1;
 
+        foreach ($resSel as $row) {
             if (number_format($row["regularhours"], 2) == '0.00') {
                 $strt = "";
                 $end = "";
@@ -576,9 +553,10 @@ function exportToExcel()
             $leavestatus = is_null($row["leavestatus"]) ? "" : $row["leavestatus"];
             $remarks = is_null($row["remarks"]) ? "" : $row["remarks"];
 
-            // $rows = [htmlspecialchars($row["Date"]->format('m-d-Y')), $strt, $end, number_format($row["Hours"], 2)];
-            $rows = [$formattedDate, $row['attendancetype'], $row['dailyschedule'], $row['daytype'], $strt, $end, number_format($row["regularhours"], 2), number_format($row["tardy"], 2), number_format($row["undertime"], 2), number_format($row["nd"], 2), number_format($row["ot"], 2), number_format($row["ndot"], 2), $leavetype, number_format($row["leaveqty"], 2), $leavestatus, number_format($row["ob"], 2), $remarks];
+            $rows = [$rowCount, $formattedDate, $row["attendancetype"], $row["dailyschedule"], $row["daytype"], $strt, $end, number_format($row["regularhours"], 2), number_format($row["tardy"], 2), number_format($row["undertime"], 2), number_format($row["nd"], 2), number_format($row["ot"], 2), number_format($row["ndot"], 2), $leavetype, number_format($row["leaveqty"], 2), $leavestatus, number_format($row["ob"], 2), $remarks];
             fputcsv($f, $rows);
+
+            $rowCount++;
         }
         // make php send the generated csv lines to the browser
         fpassthru($f);
@@ -598,14 +576,37 @@ function exportToPdf()
     $startDate = testInput($_POST["dtpStartDate"]);
     $endDate = testInput($_POST["dtpEndDate"]);
 
-    $db1 = new DbOp(1);
-
-    $selQry = "SELECT * FROM `dailytimerecord` WHERE employeeid=? AND CAST(date as DATE) between ? AND ?";
-    $prmSel = array($_SESSION['employeeId'], $startDate, $endDate);
-    $resSel = $db1->select($selQry, "sss", $prmSel);
-
     $strtDt = date_create($startDate);
     $endDt = date_create($endDate);
+
+    $db1 = new DbOp(1);
+
+    switch ($_POST["dtrOption"]) {
+        case "option1";
+            $selQry = "SELECT * FROM `dailytimerecord` WHERE employeeid=? AND CAST(date as DATE) between ? AND ? ORDER BY date ASC";
+            $prmSel = array($_SESSION['employeeId'], $startDate, $endDate);
+            $resSel = $db1->select($selQry, "sss", $prmSel);
+            break;
+
+        case "option2";
+            $selQry2 = "SELECT TRIM(departmentname) as departmentname FROM `department` WHERE departmentid = ? AND isactive = 1";
+            $prmSel2 = array($_SESSION['departmentId']);
+            $resSel2 = $db1->select($selQry2, "s", $prmSel2);
+
+            if (!empty($resSel2)) {
+                reset($resSel2);
+
+                $selQry = "SELECT * FROM `dailytimerecord` WHERE TRIM(departmentname) = ? AND CAST(date as DATE) between ? AND ? ORDER BY TRIM(employeename) ASC, date ASC";
+                $prmSel = array(current($resSel2[0]), $startDate, $endDate);
+                $resSel = $db1->select($selQry, "sss", $prmSel);
+            }
+            break;
+
+        case "option3";
+            break;
+
+        default;
+    }
 
     $GLOBALS["periodCovered"] = date_format($strtDt, 'F d, Y') . " - " . date_format($endDt, 'F d, Y');
 
@@ -651,9 +652,9 @@ function exportToPdf()
     }
 
     if ($resSel !== false) {
-        // $curDatetime = getdate(date("U"));
-        // $nameSuffix = $curDatetime['year'] . $curDatetime['mon'] . $curDatetime['mday'];
-        // $filename = "DTR_" . $nameSuffix . '.pdf';
+        $strtDt = date_create($startDate);
+        $endDt = date_create($endDate);
+        $filename = "DTR_" . date_format($strtDt, 'Ymd') . "_" . date_format($endDt, 'Ymd') . '.pdf';
 
         $pdf = new PDF();
         $pdf->AddPage('L', 'A3'); // Landscape A3
@@ -662,21 +663,15 @@ function exportToPdf()
         $pdf->SetMargins(2, 5, 2); // Set margins to avoid cutting content
         $pdf->Ln();
 
-        // use this to put headers from array with the same column size
-        // $headers = array('Date', 'Time In', 'Time Out', 'Hours');
-        // foreach ($headers as $head) {
-        //     $pdf->Cell(50, 12, $head);
-        // }
-
         // 416 sum of all cell width
         $lMargin = ($pdf->GetPageWidth() - 416) / 2;
         $pdf->SetLeftMargin($lMargin);
 
         // Adjusted table header widths to fit page
+        $pdf->Cell(80, 8, 'Name', 1, 0, 'C');
         $pdf->Cell(25, 8, 'Date', 1, 0, 'C');
         $pdf->Cell(25, 8, 'Attendance', 1, 0, 'C');
         $pdf->Cell(50, 8, 'Daily Schedule', 1, 0, 'C');
-        $pdf->Cell(50, 8, 'Day Type', 1, 0, 'C');
         $pdf->Cell(25, 8, 'Time In', 1, 0, 'C');
         $pdf->Cell(25, 8, 'Time Out', 1, 0, 'C');
         $pdf->Cell(18, 8, 'Reg Hours', 1, 0, 'C');
@@ -686,12 +681,13 @@ function exportToPdf()
         $pdf->Cell(18, 8, 'OT', 1, 0, 'C');
         $pdf->Cell(18, 8, 'NDOT', 1, 0, 'C');
         $pdf->Cell(30, 8, 'Leave Type', 1, 0, 'C');
-        $pdf->Cell(30, 8, 'Leave Status', 1, 0, 'C');
         $pdf->Cell(18, 8, 'OB', 1, 0, 'C');
         $pdf->Cell(30, 8, 'Remarks', 1, 0, 'C');
         $pdf->Ln();
 
         foreach ($resSel as $row) {
+            $pdf->Cell(80, 8, $row["employeename"], 1, 0, 'C');
+
             if (number_format($row["regularhours"], 2) == '0.00') {
                 $strt = "";
                 $end = "";
@@ -705,7 +701,6 @@ function exportToPdf()
 
             $pdf->Cell(25, 8, $row['attendancetype'], 1, 0, 'C');
             $pdf->Cell(50, 8, $row['dailyschedule'], 1, 0, 'C');
-            $pdf->Cell(50, 8, $row['daytype'], 1, 0, 'C');
 
             $pdf->Cell(25, 8, $strt, 1, 0, 'C');
             $pdf->Cell(25, 8, $end, 1, 0, 'C');
@@ -720,9 +715,6 @@ function exportToPdf()
             $leavetype = is_null($row["leavetype"]) ? "" : $row["leavetype"];
             $pdf->Cell(30, 8,  $leavetype, 1, 0, 'C');
 
-            $leavestatus = is_null($row["leavestatus"]) ? "" : $row["leavestatus"];
-            $pdf->Cell(30, 8, $leavestatus, 1, 0, 'C');
-
             $pdf->Cell(18, 8, number_format($row["ob"], 2), 1, 0, 'C');
 
             $remarks = is_null($row["remarks"]) ? "" : $row["remarks"];
@@ -734,15 +726,14 @@ function exportToPdf()
         ob_end_clean();
 
         // auto open pdf
-        $pdf->Output();
+        // $pdf->Output();
 
         // use this to download the pdf instead
-        // $pdf->Output('D', $filename);
+        $pdf->Output('D', $filename);
     }
 }
 
 ?>
-
 
 <?php
 $content = ob_get_clean(); // capture the buffer into a variable and clean the buffer

@@ -1,4 +1,6 @@
-<?php require_once "header.php"; ?>
+<?php
+require_once "header.php";
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -9,10 +11,7 @@
     <title><?php echo $title ?? 'Default Title'; ?></title>
 
     <link rel="stylesheet" href="../css/style.css">
-
     <link rel="stylesheet" href="../css/bootstrap.min.css">
-    <!-- <link rel="stylesheet" href="../datatables/datatables.min.css"> -->
-    <!-- <link rel="stylesheet" href="../font-awesome-4.7.0/css/font-awesome.min.css"> -->
 </head>
 
 <body>
@@ -27,11 +26,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <a class="nav-link active" aria-current="page" href="../dtr/viewer.php">Daily Time Record Viewer</a>
-                <!-- 
-                <a class="nav-link disabled" href="#">Load Balance Checker</a>
-                <a class="nav-link disabled" href="#">Gate Pass Application</a>
-                <a class="nav-link disabled" href="#">Leave Application</a> 
-                -->
+                <a class="nav-link active" aria-current="page" href="../dtr/load-checker.php">Canteen Deduction Checker</a>
 
                 <?php
                 if ($_SESSION['isHrRecords'] === 1 || $_SESSION['isAdmin'] === 1) {
@@ -41,6 +36,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="../dtr/upload.php">Upload DTR</a></li>
+                            <li><a class="dropdown-item" href="../dtr/upload-data.php">Upload Data</a></li>
                         </ul>
                     </li>';
                 }
@@ -70,7 +66,6 @@
 
     <!-- included to my reference -->
     <script src="../js/bootstrap.bundle.min.js"></script>
-    <!-- <script src="../datatables/datatables.min.js"></script> -->
 </body>
 
 </html>

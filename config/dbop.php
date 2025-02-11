@@ -1,6 +1,6 @@
 <?php
 
-// require_once '/config/method.php';
+set_time_limit(0);
 
 class DbOp
 {
@@ -10,22 +10,39 @@ class DbOp
     {
         // database connection
         $serverName = "localhost";
-        $username = "sa";
-        $password = "Nbc12#";
-        $db1 = "eportal";
-        $db2 = "nbctechdb";
+        $username = "nbpcomph_nbp";
+        $password = "k6k^9aDLD=oN";
+        $db1 = "nbpcomph_nbp"; // dtr viewer, leave
+        $db2 = "nbpcomph_nbc"; // canteen (cashless)
+        $db3 = "nbpcomph_nbc"; // canteen (cashless)
 
         // create connection
-        if ($dbConnection === 1) {
-            $this->conn = new mysqli($serverName, $username, $password, $db1);
-        } else if ($dbConnection === 2) {
-            $this->conn = new mysqli($serverName, $username, $password, $db2);
+        switch ($dbConnection) {
+            case "1";
+                $this->conn = new mysqli($serverName, $username, $password, $db1);
+                mysqli_query($this->conn, "SET character_set_results = 'utf8', character_set_client = 'utf8', character_set_connection = 'utf8', character_set_database = 'utf8', character_set_server = 'utf8'");
+                break;
+
+            case "2";
+                $this->conn = new mysqli($serverName, $username, $password, $db2);
+                mysqli_query($this->conn, "SET character_set_results = 'utf8', character_set_client = 'utf8', character_set_connection = 'utf8', character_set_database = 'utf8', character_set_server = 'utf8'");
+                break;
+
+            case "3";
+                $this->conn = new mysqli($serverName, $username, $password,  $db3);
+                mysqli_query($this->conn, "SET character_set_results = 'utf8', character_set_client = 'utf8', character_set_connection = 'utf8', character_set_database = 'utf8', character_set_server = 'utf8'");
+                break;
+
+            default:
+                $this->conn = new mysqli($serverName, $username, $password, $db1);
+                mysqli_query($this->conn, "SET character_set_results = 'utf8', character_set_client = 'utf8', character_set_connection = 'utf8', character_set_database = 'utf8', character_set_server = 'utf8'");
+                break;
         }
 
         // Check connection
-        // if ($this->conn->connect_error) {
-        //     die(formatErrors("Connection failed: " . $this->conn->connect_error));
-        // }
+        if ($this->conn->connect_error) {
+            die(formatErrors("Connection failed: " . $this->conn->connect_error));
+        }
     }
 
     public function select($query, $types = "", $params = [])
@@ -81,6 +98,25 @@ class DbOp
         } else {
             return false;
         }
+    }
+
+    public function set($query)
+    {
+        if ($stmt = $this->conn->prepare($query)) {
+            $stmt->execute();
+            $stmt->close();
+        } else {
+            return false;
+        }
+    }
+
+    public function getAutocompleteName($query, $departmentId)
+    {
+        $sql = "SELECT employeeid, employeename FROM employee WHERE employeename LIKE CONCAT('%', ?, '%') AND departmentid = ? AND isactive = ?";
+        $types = "sii";
+        $params = [$query, $departmentId, 1];
+
+        return $this->select($sql, $types, $params);
     }
 
     public function __destruct()
