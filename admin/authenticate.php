@@ -34,8 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 			$row = $res[0];
 			$hashed_password = $row["password"];
 
-			var_dump_pre($hashed_password);
-
 			if (password_verify($password, $hashed_password)) {
 				header('Location: admin/pass-hash.php');
 				exit;

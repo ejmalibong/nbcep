@@ -20,22 +20,22 @@ class DbOp
         switch ($dbConnection) {
             case "1";
                 $this->conn = new mysqli($serverName, $username, $password, $db1);
-                mysqli_query($this->conn, "SET character_set_results = 'utf8', character_set_client = 'utf8', character_set_connection = 'utf8', character_set_database = 'utf8', character_set_server = 'utf8'");
+                // mysqli_query($this->conn, "SET character_set_results = 'utf8', character_set_client = 'utf8', character_set_connection = 'utf8', character_set_database = 'utf8', character_set_server = 'utf8'");
                 break;
 
             case "2";
                 $this->conn = new mysqli($serverName, $username, $password, $db2);
-                mysqli_query($this->conn, "SET character_set_results = 'utf8', character_set_client = 'utf8', character_set_connection = 'utf8', character_set_database = 'utf8', character_set_server = 'utf8'");
+                // mysqli_query($this->conn, "SET character_set_results = 'utf8', character_set_client = 'utf8', character_set_connection = 'utf8', character_set_database = 'utf8', character_set_server = 'utf8'");
                 break;
 
             case "3";
                 $this->conn = new mysqli($serverName, $username, $password,  $db3);
-                mysqli_query($this->conn, "SET character_set_results = 'utf8', character_set_client = 'utf8', character_set_connection = 'utf8', character_set_database = 'utf8', character_set_server = 'utf8'");
+                // mysqli_query($this->conn, "SET character_set_results = 'utf8', character_set_client = 'utf8', character_set_connection = 'utf8', character_set_database = 'utf8', character_set_server = 'utf8'");
                 break;
 
             default:
                 $this->conn = new mysqli($serverName, $username, $password, $db1);
-                mysqli_query($this->conn, "SET character_set_results = 'utf8', character_set_client = 'utf8', character_set_connection = 'utf8', character_set_database = 'utf8', character_set_server = 'utf8'");
+                // mysqli_query($this->conn, "SET character_set_results = 'utf8', character_set_client = 'utf8', character_set_connection = 'utf8', character_set_database = 'utf8', character_set_server = 'utf8'");
                 break;
         }
 

@@ -22,10 +22,6 @@ $db2 = new DbOp(2);
 
 ?>
 
-<head>
-    <!-- <meta http-equiv='Content-Type' content='text/html; charset=utf-8' /> -->
-</head>
-
 <div class="container mt-5">
     <form id="myForm" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" enctype="multipart/form-data">
         <div class="row g-3 align-items-center input-group mb-2">
@@ -182,7 +178,7 @@ $db2 = new DbOp(2);
                                     $isAdmin = $sheet->getCell('AM' . $row)->getValue();
                                     $isActive = $sheet->getCell('AN' . $row)->getValue();
 
-                                    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+                                    $passwordHash = password_hash($employeeCode, PASSWORD_DEFAULT);
                                     $isDefaultPassword = 1;
 
                                     $insQry = "INSERT INTO `employee`(`employeeid`,`createdby`,`createddate`,`employeecode`,`employeename`,`firstname`,`middlename`,`lastname`,`nickname`,`password`,`birthdate`,`nbcemailaddress`,`emailaddress`,`contactnumber`,`addressregistered`,`addresslocal`,`genderid`,`maritalstatusid`,`employmenttypeid`,`datehired`,`dateseparated`, `dateregular`,`departmentid`,`teamid`,`positionid`,`bloodtype`,`emergencycontactname`,`emergencycontactnumber`,`emergencycontactaddress`,`allergies`,`modifiedby`,`modifieddate`,`isapprover`,`ishrrecords`,`isemployee`,`isholiday`,`isallowedit`,`isallowdelete`,`isadmin`,`isactive`,`passwordhash`,`isdefaultpassword`)
@@ -427,15 +423,9 @@ $db2 = new DbOp(2);
 
                                     $max_credit = $sheet->getCell('N' . $row)->getValue();
 
-                                    $setQry = "SET Names utf8mb4";
-                                    $setQry2 = "SET CHARACTER SET utf8mb4";
-
                                     $insQry = "INSERT INTO `members`(`member_id`, `emp_no`, `fname`, `mname`, `lname`, `address`, `department`, `section`, `position`, `balance`, `type`, `rfid_no`, `qr_code`, `max_credit`) VALUES
                                     (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
                                     $prmIns = array($member_id, $emp_no, $fname, $mname, $lname, $address, $department, $section, $position, $balance, $type, $rfid_no, $qr_code, $max_credit);
-                                    // $db2->set($setQry);
-                                    // $db2->set($setQry2);
-                                    // alertMsg($lname);
                                     $db2->insert($insQry, "issssssssdssss", $prmIns);
 
                                     $rowInserted++;
