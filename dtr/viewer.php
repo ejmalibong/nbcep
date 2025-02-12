@@ -177,7 +177,7 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
     <div class="container-fluid">
         <div class="bg-body p-3 rounded">
             <?php
-            if ($_SESSION['isHrRecords'] === 0 || $_SESSION['isAdmin'] === 0) {
+            if ($_SESSION['isAdmin'] === 0) {
             ?>
                 <div class="row row-cols-lg-auto g-3 align-items-center mb-2">
                     <div class="col-12">
