@@ -5,7 +5,7 @@ ini_set('memory_limit', '-1');
 ini_set('max_execution_time', '72000');
 ini_set('max_input_time', '72000');
 
-$title = "DTR Uploading";
+$title = "Data Uploading";
 ob_start(); // start output buffering
 
 require_once "../config/dbop.php";
@@ -117,6 +117,7 @@ $db2 = new DbOp(2);
                 // employee uploading
                 if (isset($_POST['btnUploadEmp']) && !empty($_FILES['btnBrowseEmp']['name'][0])) {
                     $totalInsertedRecords = 0;
+                    $totalUpdatedRecords = 0;
 
                     foreach ($_FILES['btnBrowseEmp']['tmp_name'] as $file) {
                         if ($file) {
@@ -124,6 +125,7 @@ $db2 = new DbOp(2);
                             $sheet = $spreadsheet->getActiveSheet();
                             $row = 1;
 
+                            $rowUpdated = 0;
                             $rowInserted = 0;
 
                             while ($sheet->getCell('A' . $row)->getValue() != "") {
@@ -133,51 +135,53 @@ $db2 = new DbOp(2);
                                 $prmSel = array($employeeId);
                                 $resSel = $db1->select($selQry, "i", $prmSel);
 
-                                // exists from database, skip
-                                if (!empty($resSel)) {
-                                }
-                                // not exists from database, insert new record
-                                else {
-                                    $createdBy = $sheet->getCell('B' . $row)->getValue();
-                                    $createdDate = $sheet->getCell('C' . $row)->getValue();
-                                    $employeeCode = $sheet->getCell('D' . $row)->getValue();
-                                    $employeeName = $sheet->getCell('E' . $row)->getValue();
-                                    $firstName = $sheet->getCell('F' . $row)->getValue();
-                                    $middleName = $sheet->getCell('G' . $row)->getValue();
-                                    $lastName = $sheet->getCell('H' . $row)->getValue();
-                                    $nickName = $sheet->getCell('I' . $row)->getValue();
-                                    $password = $sheet->getCell('J' . $row)->getValue();
-                                    $birthDate = $sheet->getCell('K' . $row)->getValue();
-                                    $nbcEmailAddress = $sheet->getCell('L' . $row)->getValue();
-                                    $emailAddress = $sheet->getCell('M' . $row)->getValue();
-                                    $contactNumber = $sheet->getCell('N' . $row)->getValue();
-                                    $addressRegistered = $sheet->getCell('O' . $row)->getValue();
-                                    $addressLocal = $sheet->getCell('P' . $row)->getValue();
-                                    $genderId = $sheet->getCell('Q' . $row)->getValue();
-                                    $maritalStatusId = $sheet->getCell('R' . $row)->getValue();
-                                    $employmentTypeId = $sheet->getCell('S' . $row)->getValue();
-                                    $dateHired = $sheet->getCell('T' . $row)->getValue();
-                                    $dateSeparated = $sheet->getCell('U' . $row)->getValue();
-                                    $dateRegular = $sheet->getCell('V' . $row)->getValue();
-                                    $departmentId = $sheet->getCell('W' . $row)->getValue();
-                                    $teamId = $sheet->getCell('X' . $row)->getValue();
-                                    $positionId = $sheet->getCell('Y' . $row)->getValue();
-                                    $bloodType = $sheet->getCell('Z' . $row)->getValue();
-                                    $emergencyContactName = $sheet->getCell('AA' . $row)->getValue();
-                                    $emergencyContactNumber = $sheet->getCell('AB' . $row)->getValue();
-                                    $emergencyContactAddress = $sheet->getCell('AC' . $row)->getValue();
-                                    $allergies = $sheet->getCell('AD' . $row)->getValue();
-                                    $modifiedBy = $sheet->getCell('AE' . $row)->getValue();
-                                    $modifiedDate = $sheet->getCell('AF' . $row)->getValue();
-                                    $isApprover = $sheet->getCell('AG' . $row)->getValue();
-                                    $isHrRecords = $sheet->getCell('AH' . $row)->getValue();
-                                    $isEmployee = $sheet->getCell('AI' . $row)->getValue();
-                                    $isHoliday = $sheet->getCell('AJ' . $row)->getValue();
-                                    $isAllowEdit = $sheet->getCell('AK' . $row)->getValue();
-                                    $isAllowDelete = $sheet->getCell('AL' . $row)->getValue();
-                                    $isAdmin = $sheet->getCell('AM' . $row)->getValue();
-                                    $isActive = $sheet->getCell('AN' . $row)->getValue();
+                                $createdBy = $sheet->getCell('B' . $row)->getValue();
+                                $createdDate = $sheet->getCell('C' . $row)->getValue();
+                                $employeeCode = $sheet->getCell('D' . $row)->getValue();
+                                $employeeName = $sheet->getCell('E' . $row)->getValue();
+                                $firstName = $sheet->getCell('F' . $row)->getValue();
+                                $middleName = $sheet->getCell('G' . $row)->getValue();
+                                $lastName = $sheet->getCell('H' . $row)->getValue();
+                                $nickName = $sheet->getCell('I' . $row)->getValue();
+                                $password = $sheet->getCell('J' . $row)->getValue();
+                                $birthDate = $sheet->getCell('K' . $row)->getValue();
+                                $nbcEmailAddress = $sheet->getCell('L' . $row)->getValue();
+                                $emailAddress = $sheet->getCell('M' . $row)->getValue();
+                                $contactNumber = $sheet->getCell('N' . $row)->getValue();
+                                $addressRegistered = $sheet->getCell('O' . $row)->getValue();
+                                $addressLocal = $sheet->getCell('P' . $row)->getValue();
+                                $genderId = $sheet->getCell('Q' . $row)->getValue();
+                                $maritalStatusId = $sheet->getCell('R' . $row)->getValue();
+                                $employmentTypeId = $sheet->getCell('S' . $row)->getValue();
+                                $dateHired = $sheet->getCell('T' . $row)->getValue();
+                                $dateSeparated = $sheet->getCell('U' . $row)->getValue();
+                                $dateRegular = $sheet->getCell('V' . $row)->getValue();
+                                $departmentId = $sheet->getCell('W' . $row)->getValue();
+                                $teamId = $sheet->getCell('X' . $row)->getValue();
+                                $positionId = $sheet->getCell('Y' . $row)->getValue();
+                                $bloodType = $sheet->getCell('Z' . $row)->getValue();
+                                $emergencyContactName = $sheet->getCell('AA' . $row)->getValue();
+                                $emergencyContactNumber = $sheet->getCell('AB' . $row)->getValue();
+                                $emergencyContactAddress = $sheet->getCell('AC' . $row)->getValue();
+                                $allergies = $sheet->getCell('AD' . $row)->getValue();
+                                $modifiedBy = $sheet->getCell('AE' . $row)->getValue();
+                                $modifiedDate = $sheet->getCell('AF' . $row)->getValue();
+                                $isApprover = $sheet->getCell('AG' . $row)->getValue();
+                                $isHrRecords = $sheet->getCell('AH' . $row)->getValue();
+                                $isEmployee = $sheet->getCell('AI' . $row)->getValue();
+                                $isHoliday = $sheet->getCell('AJ' . $row)->getValue();
+                                $isAllowEdit = $sheet->getCell('AK' . $row)->getValue();
+                                $isAllowDelete = $sheet->getCell('AL' . $row)->getValue();
+                                $isAdmin = $sheet->getCell('AM' . $row)->getValue();
+                                $isActive = $sheet->getCell('AN' . $row)->getValue();
 
+                                if (!empty($resSel)) { // exists from database, update record
+                                    $updQry = "UPDATE `employee` SET `employeename` = ?, `firstname` = ?, `middlename` = ?, `lastname` = ?, `nickname` = ?, `birthdate` = ?,`nbcemailaddress` = ?, `emailaddress` = ?, `contactnumber` = ?, `addressregistered` = ?, `addresslocal` = ?, `genderid` = ?, `maritalstatusid` = ?, `employmenttypeid` = ?, `datehired` = ?, `dateseparated` = ?, `dateregular` = ?, `departmentid` = ?, `teamid` = ?, `positionid` = ?, `bloodtype` = ?, `emergencycontactname` = ?, `emergencycontactnumber` = ?, `emergencycontactaddress` = ?, `allergies` = ?, `modifiedby` = ?, `modifieddate` = ?, `isemployee` = ?, `isholiday` = ?, `isallowedit` = ?, `isallowdelete` = ?, `isactive` = ?
+                                    WHERE `employeeid` = ?";
+                                    $db1->update($updQry, "sssssssssssiiisssiiisssssisiiiiii", [$employeeName, $firstName, $middleName, $lastName, $nickName, $birthDate, $nbcEmailAddress, $emailAddress, $contactNumber, $addressRegistered, $addressLocal, $genderId, $maritalStatusId, $employmentTypeId, $dateHired, $dateSeparated, $dateRegular, $departmentId, $teamId, $positionId, $bloodType, $emergencyContactName, $emergencyContactNumber, $emergencyContactAddress, $allergies, $modifiedBy, $modifiedDate, $isEmployee, $isHoliday, $isAllowEdit, $isAllowDelete, $isActive, $employeeId]);
+
+                                    $rowUpdated++;
+                                } else { // not exists from database, insert new record
                                     $passwordHash = password_hash($employeeCode, PASSWORD_DEFAULT);
                                     $isDefaultPassword = 1;
 
@@ -193,18 +197,20 @@ $db2 = new DbOp(2);
                             }
 
                             $totalInsertedRecords += $rowInserted;
+                            $totalUpdatedRecords += $rowUpdated;
                         }
 
-                        if ($totalInsertedRecords === 0) {
+                        if ($totalInsertedRecords + $totalUpdatedRecords === 0) {
                             $errorPrompt = "No employee(s) were uploaded.";
                         } else {
-                            $successPrompt = $totalInsertedRecords . " employee(s) were uploaded.";
+                            $successPrompt = "There are " . $totalInsertedRecords . " employee(s) uploaded and " . $totalUpdatedRecords . " updated.";
                         }
                     }
                 }
                 // department uploading
                 elseif (isset($_POST['btnUploadDept']) && !empty($_FILES['btnBrowseDept']['name'][0])) {
                     $totalInsertedRecords = 0;
+                    $totalUpdatedRecords = 0;
 
                     foreach ($_FILES['btnBrowseDept']['tmp_name'] as $file) {
                         if ($file) {
@@ -212,6 +218,7 @@ $db2 = new DbOp(2);
                             $sheet = $spreadsheet->getActiveSheet();
                             $row = 1;
 
+                            $rowUpdated = 0;
                             $rowInserted = 0;
 
                             while ($sheet->getCell('A' . $row)->getValue() != "") {
@@ -221,19 +228,21 @@ $db2 = new DbOp(2);
                                 $prmSel = array($departmentId);
                                 $resSel = $db1->select($selQry, "i", $prmSel);
 
-                                // exists from database, skip
-                                if (!empty($resSel)) {
-                                }
-                                // not exists from database, insert new record
-                                else {
-                                    $createdBy = $sheet->getCell('B' . $row)->getValue();
-                                    $createdDate = $sheet->getCell('C' . $row)->getValue();
-                                    $departmentCode = $sheet->getCell('D' . $row)->getValue();
-                                    $departmentName = $sheet->getCell('E' . $row)->getValue();
-                                    $modifiedBy = $sheet->getCell('F' . $row)->getValue();
-                                    $modifiedDate = $sheet->getCell('G' . $row)->getValue();
-                                    $isActive = $sheet->getCell('H' . $row)->getValue();
+                                $createdBy = $sheet->getCell('B' . $row)->getValue();
+                                $createdDate = $sheet->getCell('C' . $row)->getValue();
+                                $departmentCode = $sheet->getCell('D' . $row)->getValue();
+                                $departmentName = $sheet->getCell('E' . $row)->getValue();
+                                $modifiedBy = $sheet->getCell('F' . $row)->getValue();
+                                $modifiedDate = $sheet->getCell('G' . $row)->getValue();
+                                $isActive = $sheet->getCell('H' . $row)->getValue();
 
+                                if (!empty($resSel)) { // exists from database, update record
+                                    $updQry = "UPDATE `department` SET `departmentcode` = ?, `departmentname` = ?, `modifiedby` = ?, `modifieddate` = ?, `isactive` = ?
+                                    WHERE `departmentid` = ?";
+                                    $db1->update($updQry, "ssisii", [$departmentCode, $departmentName, $modifiedBy, $modifiedDate, $isActive, $departmentId]);
+
+                                    $rowUpdated++;
+                                } else { // not exists from database, insert new record
                                     $insQry = "INSERT INTO `department`(`departmentid`,`createdby`,`createddate`,`departmentcode`,`departmentname`,`modifiedby`,`modifieddate`,`isactive`) VALUES
                                         (?,?,?,?,?,?,?,?)";
                                     $prmIns = array($departmentId, $createdBy, $createdDate, $departmentCode, $departmentName, $modifiedBy, $modifiedDate, $isActive);
@@ -246,18 +255,20 @@ $db2 = new DbOp(2);
                             }
 
                             $totalInsertedRecords += $rowInserted;
+                            $totalUpdatedRecords += $rowUpdated;
                         }
 
-                        if ($totalInsertedRecords === 0) {
+                        if ($totalInsertedRecords + $totalUpdatedRecords === 0) {
                             $errorPrompt = "No department(s) were uploaded.";
                         } else {
-                            $successPrompt = $totalInsertedRecords . " department(s) were uploaded.";
+                            $successPrompt = "There are " . $totalInsertedRecords . " department(s) uploaded and " . $totalUpdatedRecords . " updated.";
                         }
                     }
                 }
                 //team uploading
                 elseif (isset($_POST['btnUploadTeam']) && !empty($_FILES['btnBrowseTeam']['name'][0])) {
                     $totalInsertedRecords = 0;
+                    $totalUpdatedRecords = 0;
 
                     foreach ($_FILES['btnBrowseTeam']['tmp_name'] as $file) {
                         if ($file) {
@@ -265,6 +276,7 @@ $db2 = new DbOp(2);
                             $sheet = $spreadsheet->getActiveSheet();
                             $row = 1;
 
+                            $rowUpdated = 0;
                             $rowInserted = 0;
 
                             while ($sheet->getCell('A' . $row)->getValue() != "") {
@@ -274,19 +286,21 @@ $db2 = new DbOp(2);
                                 $prmSel = array($teamId);
                                 $resSel = $db1->select($selQry, "i", $prmSel);
 
-                                // exists from database, skip
-                                if (!empty($resSel)) {
-                                }
-                                // not exists from database, insert new record
-                                else {
-                                    $createdBy = $sheet->getCell('B' . $row)->getValue();
-                                    $createdDate = $sheet->getCell('C' . $row)->getValue();
-                                    $teamCode = $sheet->getCell('D' . $row)->getValue();
-                                    $teamName = $sheet->getCell('E' . $row)->getValue();
-                                    $modifiedBy = $sheet->getCell('F' . $row)->getValue();
-                                    $modifiedDate = $sheet->getCell('G' . $row)->getValue();
-                                    $isActive = $sheet->getCell('H' . $row)->getValue();
+                                $createdBy = $sheet->getCell('B' . $row)->getValue();
+                                $createdDate = $sheet->getCell('C' . $row)->getValue();
+                                $teamCode = $sheet->getCell('D' . $row)->getValue();
+                                $teamName = $sheet->getCell('E' . $row)->getValue();
+                                $modifiedBy = $sheet->getCell('F' . $row)->getValue();
+                                $modifiedDate = $sheet->getCell('G' . $row)->getValue();
+                                $isActive = $sheet->getCell('H' . $row)->getValue();
 
+                                if (!empty($resSel)) { // exists from database, update record
+                                    $updQry = "UPDATE `team` SET `teamcode` = ?, `teamname` = ?, `modifiedby` = ?, `modifieddate` = ?, `isactive` = ?
+                                    WHERE `teamid` = ?";
+                                    $db1->update($updQry, "ssisii", [$teamCode, $teamName, $modifiedBy, $modifiedDate, $isActive, $teamId]);
+
+                                    $rowUpdated++;
+                                } else { // not exists from database, insert new record
                                     $insQry = "INSERT INTO `team`(`teamid`,`createdby`,`createddate`,`teamcode`,`teamname`,`modifiedby`,`modifieddate`,`isactive`) VALUES
                                     (?,?,?,?,?,?,?,?)";
                                     $prmIns = array($teamId, $createdBy, $createdDate, $teamCode, $teamName, $modifiedBy, $modifiedDate, $isActive);
@@ -299,18 +313,20 @@ $db2 = new DbOp(2);
                             }
 
                             $totalInsertedRecords += $rowInserted;
+                            $totalUpdatedRecords += $rowUpdated;
                         }
 
-                        if ($totalInsertedRecords === 0) {
+                        if ($totalInsertedRecords + $totalUpdatedRecords === 0) {
                             $errorPrompt = "No team(s) were uploaded.";
                         } else {
-                            $successPrompt = $totalInsertedRecords . " team(s) were uploaded.";
+                            $successPrompt = "There are " . $totalInsertedRecords . " team(s) uploaded and " . $totalUpdatedRecords . " updated.";
                         }
                     }
                 }
                 // position uploading
                 elseif (isset($_POST['btnUploadPos']) && !empty($_FILES['btnBrowsePos']['name'][0])) {
                     $totalInsertedRecords = 0;
+                    $totalUpdatedRecords = 0;
 
                     foreach ($_FILES['btnBrowsePos']['tmp_name'] as $file) {
                         if ($file) {
@@ -318,6 +334,7 @@ $db2 = new DbOp(2);
                             $sheet = $spreadsheet->getActiveSheet();
                             $row = 1;
 
+                            $rowUpdated = 0;
                             $rowInserted = 0;
 
                             while ($sheet->getCell('A' . $row)->getValue() != "") {
@@ -327,19 +344,21 @@ $db2 = new DbOp(2);
                                 $prmSel = array($positionId);
                                 $resSel = $db1->select($selQry, "s", $prmSel);
 
-                                // exists from database, skip
-                                if (!empty($resSel)) {
-                                }
-                                // not exists from database, insert new record
-                                else {
-                                    $createdBy = $sheet->getCell('B' . $row)->getValue();
-                                    $createdDate = $sheet->getCell('C' . $row)->getValue();
-                                    $positionCode = $sheet->getCell('D' . $row)->getValue();
-                                    $positionName = $sheet->getCell('E' . $row)->getValue();
-                                    $modifiedBy = $sheet->getCell('F' . $row)->getValue();
-                                    $modifiedDate = $sheet->getCell('G' . $row)->getValue();
-                                    $isActive = $sheet->getCell('H' . $row)->getValue();
+                                $createdBy = $sheet->getCell('B' . $row)->getValue();
+                                $createdDate = $sheet->getCell('C' . $row)->getValue();
+                                $positionCode = $sheet->getCell('D' . $row)->getValue();
+                                $positionName = $sheet->getCell('E' . $row)->getValue();
+                                $modifiedBy = $sheet->getCell('F' . $row)->getValue();
+                                $modifiedDate = $sheet->getCell('G' . $row)->getValue();
+                                $isActive = $sheet->getCell('H' . $row)->getValue();
 
+                                if (!empty($resSel)) { // exists from database, update record
+                                    $updQry = "UPDATE `position` SET `positioncode` = ?, `positionname` = ?, `modifiedby` = ?, `modifieddate` = ?, `isactive` = ?
+                                    WHERE `positionid` = ?";
+                                    $db1->update($updQry, "ssisii", [$positionCode, $positionName, $modifiedBy, $modifiedDate, $isActive, $positionId]);
+
+                                    $rowUpdated++;
+                                } else { // not exists from database, insert new record
                                     $insQry = "INSERT INTO `position`(`positionid`,`createdby`,`createddate`,`positioncode`,`positionname`,`modifiedby`,`modifieddate`,`isactive`) VALUES
                                     (?,?,?,?,?,?,?,?)";
                                     $prmIns = array($positionId, $createdBy, $createdDate, $positionCode, $positionName, $modifiedBy, $modifiedDate, $isActive);
@@ -352,12 +371,12 @@ $db2 = new DbOp(2);
                             }
 
                             $totalInsertedRecords += $rowInserted;
+                            $totalUpdatedRecords += $rowUpdated;
                         }
-
-                        if ($totalInsertedRecords === 0) {
+                        if ($totalInsertedRecords + $totalUpdatedRecords === 0) {
                             $errorPrompt = "No position(s) were uploaded.";
                         } else {
-                            $successPrompt = $totalInsertedRecords . " position(s) were uploaded.";
+                            $successPrompt = "There are " . $totalInsertedRecords . " position(s) uploaded and " . $totalUpdatedRecords . " updated.";
                         }
                     }
                 }
@@ -429,41 +448,6 @@ $db2 = new DbOp(2);
                                     $db2->insert($insQry, "issssssssdssss", $prmIns);
 
                                     $rowInserted++;
-
-                                    //     $member_id = mb_convert_encoding($sheet->getCell('A' . $row)->getValue(), 'UTF-8', 'auto');
-
-                                    //     $selQry = "SELECT member_id FROM `members` WHERE member_id=? LIMIT 1";
-                                    //     $prmSel = array($member_id);
-                                    //     $resSel = $db2->select($selQry, "i", $prmSel);
-
-                                    //     if (empty($resSel)) {
-                                    //         $emp_no = mb_convert_encoding($sheet->getCell('B' . $row)->getValue() ?? "  ", 'UTF-8', 'auto');
-                                    //         $fname = mb_convert_encoding($sheet->getCell('C' . $row)->getValue() ?? "  ", 'UTF-8', 'auto');
-                                    //         $mname = mb_convert_encoding($sheet->getCell('D' . $row)->getValue() ?? "  ", 'UTF-8', 'auto');
-                                    //         $lname = mb_convert_encoding($sheet->getCell('E' . $row)->getValue() ?? "  ", 'UTF-8', 'auto');
-                                    //         $address = mb_convert_encoding($sheet->getCell('F' . $row)->getValue() ?? "  ", 'UTF-8', 'auto');
-                                    //         $department = mb_convert_encoding($sheet->getCell('G' . $row)->getValue() ?? "  ", 'UTF-8', 'auto');
-                                    //         $section = mb_convert_encoding($sheet->getCell('H' . $row)->getValue() ?? "  ", 'UTF-8', 'auto');
-                                    //         $position = mb_convert_encoding($sheet->getCell('I' . $row)->getValue() ?? "  ", 'UTF-8', 'auto');
-                                    //         $balance = $sheet->getCell('J' . $row)->getValue() ?? 0;
-                                    //         $type = mb_convert_encoding($sheet->getCell('K' . $row)->getValue() ?? "  ", 'UTF-8', 'auto');
-                                    //         $rfid_no = mb_convert_encoding($sheet->getCell('L' . $row)->getValue() ?? "  ", 'UTF-8', 'auto');
-                                    //         $qr_code = mb_convert_encoding($sheet->getCell('M' . $row)->getValue() ?? "  ", 'UTF-8', 'auto');
-                                    //         $max_credit = $sheet->getCell('N' . $row)->getValue();
-
-                                    //         $lnameFinal = testInput($lname);
-                                    //         $qr_codeFinal = testInput($qr_code);
-
-                                    //         $insQry = "INSERT INTO `members`(`member_id`, `emp_no`, `fname`, `mname`, `lname`, `address`, `department`, `section`, `position`, `balance`, `type`, `rfid_no`, `qr_code`, `max_credit`) 
-                                    //    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-                                    //         $prmIns = array($member_id, $emp_no, $fname, $mname, $lnameFinal, $address, $department, $section, $position, $balance, $type, $rfid_no, $qr_codeFinal, $max_credit);
-                                    //         try {
-                                    //             $db2->insert($insQry, "issssssssdssss", $prmIns);
-                                    //             $rowInserted++;
-                                    //         } catch (Exception $e) {
-                                    //             error_log("Error inserting row $row: " . $e->getMessage());
-                                    //         }
-                                    // }
                                 }
 
                                 $row++;

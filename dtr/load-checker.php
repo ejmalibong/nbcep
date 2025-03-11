@@ -1,6 +1,6 @@
 <?php
 
-$title = "DTR Viewer";
+$title = "Canteen Purchases";
 ob_start(); // start output buffering
 
 require_once "../config/dbop.php";
@@ -123,16 +123,12 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
         td:nth-of-type(7):before {
             content: "Amount";
         }
-
-        td:nth-of-type(8):before {
-            content: "Type";
-        }
     }
 </style>
 
 <form id="myForm" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
     <div class="container-fluid">
-        <div class="bg-body p-5 rounded">
+        <div class="bg-body p-3 rounded">
             <div class="row row-cols-lg-auto g-3 align-items-center mb-2">
                 <div class="col-12">
                     <label for="dtpStartDate" class="col-form-label">Start Date</label>
@@ -151,7 +147,7 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
             <div class="row g-3 align-items-center input-group mb-2">
                 <div class="col-auto">
                     <button type="submit" class='btn btn-primary' id="btnGenerate" value="btnGenerate" name="btnGenerate">
-                        Generate Canteen Purchases
+                        Generate Purchases
                     </button>
                 </div>
                 <div class="col-auto">
@@ -166,6 +162,36 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
                 </div>
             </div>
 
+            <?php
+            if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+                $startDate = testInput($_POST["dtpStartDate"]);
+                $endDate = testInput($_POST["dtpEndDate"]);
+
+                if (empty($startDate) || is_null($startDate)) {
+                    $errorPrompt .= "Start date is empty.<br>";
+                }
+
+                if (empty($endDate) || is_null($endDate)) {
+                    $errorPrompt .= "End date is empty.<br>";
+                }
+
+                if (!empty($startDate) && !empty($endDate) && $startDate > $endDate) {
+                    $errorPrompt .= "Start date is later than end date.<br>";
+                }
+
+                if (empty($errorPrompt)) {
+                    if (isset($_POST['btnGenerate'])) {
+                        generateDeduction();
+                    } else if (isset($_POST['btnExpExcel'])) {
+                        exportToExcel();
+                    } else if (isset($_POST['btnExpPdf'])) {
+                        exportToPdf();
+                    }
+                }
+            }
+            ?>
+
             <?php if ($errorPrompt) : ?>
                 <div class="alert alert-danger mt-3" role="alert">
                     <?php echo $errorPrompt; ?>
@@ -178,36 +204,6 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
             <?php endif; ?>
         </div>
     </div>
-
-    <?php
-    if ($_SERVER["REQUEST_METHOD"] === "POST") {
-
-        $startDate = testInput($_POST["dtpStartDate"]);
-        $endDate = testInput($_POST["dtpEndDate"]);
-
-        if (empty($startDate) || is_null($startDate)) {
-            $errorPrompt .= "Start date is empty.<br>";
-        }
-
-        if (empty($endDate) || is_null($endDate)) {
-            $errorPrompt .= "End date is empty.<br>";
-        }
-
-        if (!empty($startDate) && !empty($endDate) && $startDate > $endDate) {
-            $errorPrompt .= "Start date is later than end date.<br>";
-        }
-
-        if (empty($errorPrompt)) {
-            if (isset($_POST['btnGenerate'])) {
-                generateDeduction();
-            } else if (isset($_POST['btnExpExcel'])) {
-                exportToExcel();
-            } else if (isset($_POST['btnExpPdf'])) {
-                exportToPdf();
-            }
-        }
-    }
-    ?>
 </form>
 
 <script>

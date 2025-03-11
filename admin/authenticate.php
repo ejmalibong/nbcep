@@ -6,8 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title></title>
 	<link rel="stylesheet" href="css/bootstrap.min.css">
-	<!-- display blank favicon - -->
-	<link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=">
+	<link rel="icon" type="image/png" href="../img/favicon.png">
 </head>
 
 <?php
@@ -73,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 						if (!empty($res2)) {
 							foreach ($res2 as $row2) {
 								if ($row['isdefaultpassword'] == 1) {
-									echo '<script> alert("Please change your default password."); window.location.href="user/pass-change.php"; </script>';
+									echo '<script> alert("Please change your default password."); window.location.href="user/change-password.php"; </script>';
 								} else {
 									header('Location: dtr/viewer.php');
 								}

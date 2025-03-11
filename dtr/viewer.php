@@ -1,6 +1,6 @@
 <?php
 
-$title = "DTR Viewer";
+$title = "Daily Time Record";
 ob_start(); // start output buffering
 
 require_once "../config/dbop.php";
@@ -99,71 +99,71 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
             content: "#";
         }
 
-        td:nth-of-type(5):before {
+        td:nth-of-type(2):before {
             content: "Date";
         }
 
-        td:nth-of-type(6):before {
+        td:nth-of-type(3):before {
             content: "Attendance";
         }
 
-        td:nth-of-type(7):before {
+        td:nth-of-type(4):before {
             content: "Schedule";
         }
 
-        td:nth-of-type(8):before {
+        td:nth-of-type(5):before {
             content: "Day";
         }
 
-        td:nth-of-type(9):before {
+        td:nth-of-type(6):before {
             content: "Time In";
         }
 
-        td:nth-of-type(10):before {
+        td:nth-of-type(7):before {
             content: "Time Out";
         }
 
-        td:nth-of-type(11):before {
+        td:nth-of-type(8):before {
             content: "Reg Hours";
         }
 
-        td:nth-of-type(12):before {
+        td:nth-of-type(9):before {
             content: "Tardy";
         }
 
-        td:nth-of-type(13):before {
+        td:nth-of-type(10):before {
             content: "Undertime";
         }
 
-        td:nth-of-type(14):before {
+        td:nth-of-type(11):before {
             content: "ND";
         }
 
-        td:nth-of-type(15):before {
+        td:nth-of-type(12):before {
             content: "OT";
         }
 
-        td:nth-of-type(16):before {
+        td:nth-of-type(13):before {
             content: "NDOT";
         }
 
-        td:nth-of-type(17):before {
+        td:nth-of-type(14):before {
             content: "Leave";
         }
 
-        td:nth-of-type(18):before {
+        td:nth-of-type(15):before {
             content: "Qty";
         }
 
-        td:nth-of-type(19):before {
+        td:nth-of-type(16):before {
             content: "Status";
         }
 
-        td:nth-of-type(20):before {
+        td:nth-of-type(17):before {
             content: "OB";
         }
 
-        td:nth-of-type(21):before {
+        td:nth-of-type(18):before {
             content: "Remarks";
         }
     }
@@ -177,69 +177,56 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
     <div class="container-fluid">
         <div class="bg-body p-3 rounded">
             <?php
-            if ($_SESSION['isAdmin'] === 0) {
+            $allowedPositions = [2, 13, 15, 21, 43]; // List of allowed position IDs
+            $positionId = $_SESSION['positionId'];
+            $isAdmin = $_SESSION['isAdmin'] === 1;
+            $isHrRecords = $_SESSION['isHrRecords'] === 1;
+            $showOptions = in_array($positionId, $allowedPositions) || $isAdmin || $isHrRecords;
+
+            // Function to generate radio buttons
+            function renderDtrOptions()
+            {
             ?>
                 <div class="row row-cols-lg-auto g-3 align-items-center mb-2">
                     <div class="col-12">
-                        <input class="form-check-input" type="radio" id="rdMyDtr" name="dtrOption" value="option1" <?php if (isset($_POST["dtrOption"]) && $_POST['dtrOption'] == "option1") {
-                                                                                                                        echo "checked";
-                                                                                                                    } ?> onclick="toggleDtrOption()" checked>
-                        <label class="form-check-label" for="rdMyDtr">
-                            My DTR
-                        </label>
-                    </div>
-                </div>
-                <div class="row row-cols-lg-auto g-3 align-items-center mb-2">
-                    <div class="col-12">
-                        <label for="dtpStartDate" class="col-form-label">Start Date</label>
+                        <input class="form-check-input" type="radio" id="rdMyDtr" name="dtrOption" value="option1"
+                            <?= (isset($_POST["dtrOption"]) && $_POST['dtrOption'] == "option1") ? "checked" : "" ?>
+                            onclick="toggleDtrOption()" checked>
+                        <label class="form-check-label" for="rdMyDtr">My DTR</label>
                     </div>
                     <div class="col-12">
-                        <input type="date" id="dtpStartDate" name="dtpStartDate" class="form-control" value="<?php echo isset($_POST["dtpStartDate"]) ? $_POST["dtpStartDate"] : $firstDay; ?>">
-                    </div>
-                    <div class="col-12">
-                        <label for="dtpEndDate" class="col-form-label">End Date</label>
-                    </div>
-                    <div class="col-12">
-                        <input type="date" id="dtpEndDate" name="dtpEndDate" class="form-control" value="<?php echo isset($_POST["dtpEndDate"]) ? $_POST["dtpEndDate"] : $lastDay; ?>">
+                        <input class="form-check-input" type="radio" id="rdDeptMembers" name="dtrOption" value="option2"
+                            <?= (isset($_POST["dtrOption"]) && $_POST['dtrOption'] == "option2") ? "checked" : "" ?>
+                            onclick="toggleDtrOption()">
+                        <label class="form-check-label" for="rdDeptMembers">All Department Members</label>
                     </div>
                 </div>
             <?php
+            }
+
+            // Determine what to show
+            if ($showOptions) {
+                renderDtrOptions();
             } else {
+                // Ensure dtrOption is always "option1" for non-admins without HR records access
+                echo '<input type="hidden" name="dtrOption" value="option1">';
+            }
             ?>
-                <div class="row row-cols-lg-auto g-3 align-items-center mb-2">
-                    <div class="col-12">
-                        <input class="form-check-input" type="radio" id="rdMyDtr" name="dtrOption" value="option1" <?php if (isset($_POST["dtrOption"]) && $_POST['dtrOption'] == "option1") {
-                                                                                                                        echo "checked";
-                                                                                                                    } ?> onclick="toggleDtrOption()" checked>
-                        <label class="form-check-label" for="rdMyDtr">
-                            My DTR
-                        </label>
-                    </div>
-                    <div class="col-12">
-                        <input class="form-check-input" type="radio" id="rdDeptMembers" name="dtrOption" value="option2" <?php if (isset($_POST["dtrOption"]) && $_POST['dtrOption'] == "option2") {
-                                                                                                                                echo "checked";
-                                                                                                                            } ?> onclick="toggleDtrOption()">
-                        <label class="form-check-label" for="rdDeptMembers">
-                            All Department Members
-                        </label>
-                    </div>
+
+            <div class="row row-cols-lg-auto g-3 align-items-center mb-2">
+                <div class="col-12">
+                    <label for="dtpStartDate" class="col-form-label">Start Date</label>
                 </div>
-                <div class="row row-cols-lg-auto g-3 align-items-center mb-2">
-                    <div class="col-12">
-                        <label for="dtpStartDate" class="col-form-label">Start Date</label>
-                    </div>
-                    <div class="col-12">
-                        <input type="date" id="dtpStartDate" name="dtpStartDate" class="form-control" value="<?php echo isset($_POST["dtpStartDate"]) ? $_POST["dtpStartDate"] : $firstDay; ?>">
-                    </div>
-                    <div class="col-12">
-                        <label for="dtpEndDate" class="col-form-label">End Date</label>
-                    </div>
-                    <div class="col-12">
-                        <input type="date" id="dtpEndDate" name="dtpEndDate" class="form-control" value="<?php echo isset($_POST["dtpEndDate"]) ? $_POST["dtpEndDate"] : $lastDay; ?>">
-                    </div>
+                <div class="col-12">
+                    <input type="date" id="dtpStartDate" name="dtpStartDate" class="form-control" value="<?php echo isset($_POST["dtpStartDate"]) ? $_POST["dtpStartDate"] : $firstDay; ?>">
                 </div>
-            <?php
-            } ?>
+                <div class="col-12">
+                    <label for="dtpEndDate" class="col-form-label">End Date</label>
+                </div>
+                <div class="col-12">
+                    <input type="date" id="dtpEndDate" name="dtpEndDate" class="form-control" value="<?php echo isset($_POST["dtpEndDate"]) ? $_POST["dtpEndDate"] : $lastDay; ?>">
+                </div>
+            </div>
 
             <div class="row g-3 align-items-center input-group mb-2">
                 <div class="col-auto">
@@ -259,6 +246,35 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
                 </div>
             </div>
 
+            <?php
+            if ($_SERVER["REQUEST_METHOD"] === "POST") {
+                $startDate = testInput($_POST["dtpStartDate"]);
+                $endDate = testInput($_POST["dtpEndDate"]);
+
+                if (empty($startDate) || is_null($startDate)) {
+                    $errorPrompt .= "Start date is empty.<br>";
+                }
+
+                if (empty($endDate) || is_null($endDate)) {
+                    $errorPrompt .= "End date is empty.<br>";
+                }
+
+                if (!empty($startDate) && !empty($endDate) && $startDate > $endDate) {
+                    $errorPrompt .= "Start date is later than end date.<br>";
+                }
+
+                if (empty($errorPrompt)) {
+                    if (isset($_POST['btnGenerate'])) {
+                        generateDtr();
+                    } else if (isset($_POST['btnExpExcel'])) {
+                        exportToExcel();
+                    } else if (isset($_POST['btnExpPdf'])) {
+                        exportToPdf();
+                    }
+                }
+            }
+            ?>
+
             <?php if ($errorPrompt) : ?>
                 <div class="alert alert-danger mt-3" role="alert">
                     <?php echo $errorPrompt; ?>
@@ -271,35 +287,6 @@ $lastDay = date('Y-m-' . cal_days_in_month(CAL_GREGORIAN, date('m'), date('Y')))
             <?php endif; ?>
         </div>
     </div>
-
-    <?php
-    if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        $startDate = testInput($_POST["dtpStartDate"]);
-        $endDate = testInput($_POST["dtpEndDate"]);
-
-        if (empty($startDate) || is_null($startDate)) {
-            $errorPrompt .= "Start date is empty.<br>";
-        }
-
-        if (empty($endDate) || is_null($endDate)) {
-            $errorPrompt .= "End date is empty.<br>";
-        }
-
-        if (!empty($startDate) && !empty($endDate) && $startDate > $endDate) {
-            $errorPrompt .= "Start date is later than end date.<br>";
-        }
-
-        if (empty($errorPrompt)) {
-            if (isset($_POST['btnGenerate'])) {
-                generateDtr();
-            } else if (isset($_POST['btnExpExcel'])) {
-                exportToExcel();
-            } else if (isset($_POST['btnExpPdf'])) {
-                exportToPdf();
-            }
-        }
-    }
-    ?>
 </form>
 
 <script>
@@ -363,10 +350,11 @@ function generateDtr()
             }
             break;
 
-        case "option3";
-            break;
-
         default:
+            $selQry = "SELECT * FROM `dailytimerecord` WHERE employeeid=? AND CAST(date as DATE) between ? AND ? ORDER BY date ASC";
+            $prmSel = array($_SESSION['employeeId'], $startDate, $endDate);
+            $resSel = $db1->select($selQry, "sss", $prmSel);
+            break;
     }
 
     if (!empty($resSel)) {
@@ -511,10 +499,11 @@ function exportToExcel()
             }
             break;
 
-        case "option3";
-            break;
-
         default;
+            $selQry = "SELECT * FROM `dailytimerecord` WHERE employeeid=? AND CAST(date as DATE) between ? AND ? ORDER BY date ASC";
+            $prmSel = array($_SESSION['employeeId'], $startDate, $endDate);
+            $resSel = $db1->select($selQry, "sss", $prmSel);
+            break;
     }
 
     if (!empty($resSel)) {
@@ -602,10 +591,11 @@ function exportToPdf()
             }
             break;
 
-        case "option3";
-            break;
-
         default;
+            $selQry = "SELECT * FROM `dailytimerecord` WHERE employeeid=? AND CAST(date as DATE) between ? AND ? ORDER BY date ASC";
+            $prmSel = array($_SESSION['employeeId'], $startDate, $endDate);
+            $resSel = $db1->select($selQry, "sss", $prmSel);
+            break;
     }
 
     $GLOBALS["periodCovered"] = date_format($strtDt, 'F d, Y') . " - " . date_format($endDt, 'F d, Y');

@@ -9,7 +9,7 @@ require_once "header.php";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $title ?? 'Default Title'; ?></title>
-
+    <link rel="icon" type="image/png" href="../img/favicon.png">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/bootstrap.min.css">
 </head>
@@ -25,11 +25,12 @@ require_once "header.php";
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <a class="nav-link active" aria-current="page" href="../dtr/viewer.php">Daily Time Record Viewer</a>
-                <a class="nav-link active" aria-current="page" href="../dtr/load-checker.php">Canteen Deduction Checker</a>
+                <a class="nav-link active" aria-current="page" href="../dtr/viewer.php">Daily Time Record</a>
+                <a class="nav-link active" aria-current="page" href="../dtr/load-checker.php">Canteen Purchases</a>
 
                 <?php
-                if ($_SESSION['isHrRecords'] === 1 || $_SESSION['isAdmin'] === 1) {
+
+                if ($_SESSION['isAdmin'] === 1) {
                     echo '<li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Settings
@@ -39,7 +40,19 @@ require_once "header.php";
                             <li><a class="dropdown-item" href="../dtr/upload-data.php">Upload Data</a></li>
                         </ul>
                     </li>';
+                } else {
+                    if ($_SESSION['isHrRecords'] === 1) {
+                        echo '<li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Settings
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="../dtr/upload.php">Upload DTR</a></li>
+                        </ul>
+                    </li>';
+                    }
                 }
+
                 ?>
             </ul>
 
@@ -50,7 +63,7 @@ require_once "header.php";
                         <?= testInput($_SESSION['employeeName']); ?>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-lg-end">
-                        <li><a class="dropdown-item" href="../user/pass-change.php">Change Password</a></li>
+                        <li><a class="dropdown-item" href="../user/change-password.php">Change Password</a></li>
                         <li><a class="dropdown-item" href="../logout.php">Log Out</a></li>
                     </ul>
                 </li>
