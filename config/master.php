@@ -15,23 +15,23 @@ require_once "header.php";
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg sticky-top bg-body-tertiary bg-dark border-bottom border-body" data-bs-theme="dark"">
+    <nav class="navbar navbar-expand-lg sticky-top bg-body-tertiary bg-dark border-bottom border-body" data-bs-theme="dark">
         <div class=" container-fluid">
-        <a class="navbar-brand" href="#">
-            <img src="../img/nbc.jpg" alt="nbc-logo" width="70" height="35">
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <a class="nav-link active" aria-current="page" href="../dtr/viewer.php">Daily Time Record</a>
-                <a class="nav-link active" aria-current="page" href="../dtr/load-checker.php">Canteen Purchases</a>
+            <a class="navbar-brand" href="#">
+                <img src="../img/nbc.jpg" alt="nbc-logo" width="70" height="35">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <a class="nav-link active" aria-current="page" href="../dtr/viewer.php">Daily Time Record</a>
+                    <a class="nav-link active" aria-current="page" href="../dtr/load-checker.php">Canteen Purchases</a>
 
-                <?php
+                    <?php
 
-                if ($_SESSION['isAdmin'] === 1) {
-                    echo '<li class="nav-item dropdown">
+                    if ($_SESSION['isAdmin'] === 1) {
+                        echo '<li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Settings
                         </a>
@@ -40,9 +40,9 @@ require_once "header.php";
                             <li><a class="dropdown-item" href="../dtr/upload-data.php">Upload Data</a></li>
                         </ul>
                     </li>';
-                } else {
-                    if ($_SESSION['isHrRecords'] === 1) {
-                        echo '<li class="nav-item dropdown">
+                    } else {
+                        if ($_SESSION['isHrRecords'] === 1) {
+                            echo '<li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Settings
                         </a>
@@ -50,25 +50,25 @@ require_once "header.php";
                             <li><a class="dropdown-item" href="../dtr/upload.php">Upload DTR</a></li>
                         </ul>
                     </li>';
+                        }
                     }
-                }
 
-                ?>
-            </ul>
+                    ?>
+                </ul>
 
-            <!-- https://stackoverflow.com/questions/8662535/trigger-php-function-by-clicking-html-link -->
-            <ul class="navbar-nav">
-                <li class="nav-item dropdown-center">
-                    <button class="btn btn-dark activedropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <?= testInput($_SESSION['employeeName']); ?>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-lg-end">
-                        <li><a class="dropdown-item" href="../user/change-password.php">Change Password</a></li>
-                        <li><a class="dropdown-item" href="../logout.php">Log Out</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
+                <!-- https://stackoverflow.com/questions/8662535/trigger-php-function-by-clicking-html-link -->
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown-center">
+                        <button class="btn btn-dark activedropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <?= testInput($_SESSION['employeeName']); ?>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-lg-end">
+                            <li><a class="dropdown-item" href="../user/change-password.php">Change Password</a></li>
+                            <li><a class="dropdown-item" href="../logout.php">Log Out</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
