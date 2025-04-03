@@ -1,11 +1,5 @@
 <?php
-
-if (substr(gethostname(), 0, 9) === "NBCP-MDT-") {
-  header("Location: index-scan.php");
-  exit();
-}
-
-require_once 'admin/authenticate.php';
+require_once 'admin/authenticate-scan.php';
 ?>
 
 <!DOCTYPE html>
@@ -31,18 +25,11 @@ require_once 'admin/authenticate.php';
           <div class="card-body">
             <form id="myForm" action="" method="POST">
               <div class="mb-3">
-                <label for="employeeCode" class="form-label">Employee ID</label>
-                <input type="text" class="form-control" id="employeeCode" name="txtEmployeeCode" required />
-              </div>
-              <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="txtPassword" required />
+                <label for="employeeCode" class="form-label">Scan your ID</label>
+                <input type="text" class="form-control" id="employeeCode" name="txtEmployeeCode" required autofocus />
               </div>
               <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-primary" name="btnlogin">Login</button>
-              </div>
-              <div class="text-center mt-3">
-                <a href="user/forgot-password.php">Forgot Password?</a>
               </div>
             </form>
 
