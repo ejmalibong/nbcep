@@ -53,19 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 						$_SESSION['isAdmin'] = $row['isadmin'];
 						$_SESSION['isActive'] = $row['isactive'];
 
-						$selQry2 = "SELECT `isdefaultpassword` FROM `employee` WHERE employeeid=?";
-						$prmSel2 = array($_SESSION['employeeId']);
-						$res2 = $db1->select($selQry2, "i", $prmSel2);
-
-						if (!empty($res2)) {
-							foreach ($res2 as $row2) {
-								if ($row['isdefaultpassword'] == 1) {
-									echo '<script> alert("Please change your default password."); window.location.href="user/change-password.php"; </script>';
-								} else {
-									header('Location: dtr/viewer.php');
-								}
-							}
-						}
+						header('Location: dtr/load-checker.php');
 						exit;
 					}
 				} else {

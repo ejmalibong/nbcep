@@ -1,5 +1,5 @@
 <?php
-require_once 'admin/authenticate-scan.php';
+require_once 'admin/authenticate-scan-dtr.php';
 ?>
 
 <!DOCTYPE html>
@@ -25,7 +25,7 @@ require_once 'admin/authenticate-scan.php';
           <div class="card-body">
             <form id="myForm" action="" method="POST">
               <div class="mb-3">
-                <label for="employeeCode" class="form-label">Scan your ID</label>
+                <label for="employeeCode" class="form-label">Scan/Tap your ID</label>
                 <input type="text" class="form-control" id="employeeCode" name="txtEmployeeCode" required autofocus />
               </div>
               <div class="d-grid gap-2">
